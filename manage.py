@@ -20,5 +20,14 @@ def create_db():
     print ('Database created!')
 
 
+# manually drop db
+@manager.command
+def drop_db():
+    """Drop db tables."""
+    if prompt_bool("Are you sure you want to drop the database?"):
+        db.drop_all()
+        print ('Database has been dropped!')
+
+
 if __name__ == '__main__':
     manager.run()
