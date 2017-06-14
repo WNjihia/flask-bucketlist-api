@@ -1,6 +1,9 @@
 """models.py."""
+import jwt
+import os
 
 from app import db
+from run import app
 from datetime import datetime
 from werkzeug.security import generate_password_hash
 
@@ -15,13 +18,26 @@ class User(db.Model):
     password = db.Column(db.String(128))
     bucketlist = db.relationship('Bucketlist', backref='user', lazy='dynamic')
 
-    # def __init__(self, password):
-    #     """Initialize with setting a hashed password."""
-    #     self.set_password(password)
-
     def set_password(self, password):
         """Hash the password."""
         self.pw_hash = generate_password_hash(password)
+
+    def generate_auth_token(self, id):
+        """Generate the Auth Token."""
+        try:
+            payload = {
+                'expiration_date': datetime.datetime.utcnow() +
+                datetime.timedelta(days=0, minutes=10),
+                'time_token_is_generated': datetime.datetime.utcnow(),
+                'user': id
+            }
+            return jwt.encode(
+                payload,
+                app.config.get(os.getenv('SECRET')),
+                algorithm='HS256'
+            )
+        except Exception as e:
+            return e
 
 
 class Bucketlist(db.Model):
