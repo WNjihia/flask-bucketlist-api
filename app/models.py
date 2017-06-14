@@ -15,9 +15,9 @@ class User(db.Model):
     password = db.Column(db.String(128))
     bucketlist = db.relationship('Bucketlist', backref='user', lazy='dynamic')
 
-    def __init__(self, password):
-        """Initialize with setting a hashed password."""
-        self.set_password(password)
+    # def __init__(self, password):
+    #     """Initialize with setting a hashed password."""
+    #     self.set_password(password)
 
     def set_password(self, password):
         """Hash the password."""
@@ -35,10 +35,10 @@ class Bucketlist(db.Model):
     date_modified = db.Column(db.DateTime, default=datetime.now,
                               onupdate=datetime.now)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created_by = db.relationship('user',
+    created_by = db.relationship('User',
                                  backref=db.backref('user', lazy='dynamic'))
-    items = db.relationship('items',
-                            backref=db.backref('bucketlists', lazy='dynamic'))
+    items = db.relationship('Item',
+                            backref=db.backref('bucketlists'))
 
     def __repr__(self):
         """Return printable representation of the object."""
@@ -69,6 +69,10 @@ class Item(db.Model):
     bucketlist_id = db.Column(db.Integer,
                               db.ForeignKey('bucketlists.id'))
 
-    def __init__(self, item_name):
-        """Initialize with item name."""
-        self.item_name = item_name
+    def __repr__(self):
+        """Return printable representation of the object."""
+        return "Item: %d" % self.item_name
+
+    # def __init__(self, item_name):
+    #     """Initialize with item name."""
+    #     self.item_name = item_name
