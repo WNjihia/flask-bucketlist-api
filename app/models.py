@@ -39,6 +39,17 @@ class User(db.Model):
         except Exception as e:
             return e
 
+    @staticmethod
+    def verify_signature(auth_token):
+        """Decode the auth token and verify the signature."""
+        try:
+            payload = jwt.decode(auth_token, os.getenv('SECRET'))
+            return payload['user']
+        except jwt.ExpiredSignatureError:
+            return 'Signature Expired. Try log in again'
+        except jwt.InvalidTokenError:
+            return 'Invalid Token. Try log in again'
+
 
 class Bucketlist(db.Model):
     """This class represents the bucketlist table."""
