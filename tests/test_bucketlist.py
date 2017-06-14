@@ -1,0 +1,87 @@
+"""test_bucketlist.py."""
+import json
+from tests.test import BaseTestCase
+
+
+class BucketListTestCase(BaseTestCase):
+    """This class contains tests for the bucketlist."""
+
+    URL = "/api/v1/bucketlists/"
+
+    def test_createBucketList(self):
+        """Test for successful creation of a bucketlist."""
+        data = {'bucketlist_title': 'Visit Kenya'}
+        response = self.client().post(self.URL, json.dumps(data),
+                                      content_type="application/json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual("Bucketlist created successfully", str(response.data))
+
+    def test_createBucketList_that_exists(self):
+        """Test for creation of a bucketlist that already exists."""
+        data = {'bucketlist_title': 'Visit Paris'}
+        response = self.client().post(self.URL, json.dumps(data),
+                                      content_type="application/json")
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("This bucketlist already exists", str(response.data))
+
+    def test_getBucketLists(self):
+        """Test for retrieval of all bucketlists."""
+        response = self.client().get(self.URL)
+        self.assertEqual(response.status_code, 200)
+
+    def test_getBucketList_by_id(self):
+        """Test for retrieval of a bucketlists by id."""
+        # Get bucketlist with ID 1
+        response = self.client().get("/api/v1/bucketlists/1")
+        self.assertEqual(response.status_code, 200)
+
+        # Get bucketlist with ID 2
+        data = {'bucketlist_title': 'Visit Rome'}
+        response = self.client().post(self.URL, json.dumps(data),
+                                      content_type="application/json")
+        response = self.client().get("/api/v1/bucketlists/2")
+        self.assertEqual(response.status_code, 200)
+
+    def test_getBucketList_that_does_not_exist(self):
+        """Test for retrieval of a bucketlists that does not exist."""
+        response = self.client().get("/api/v1/bucketlists/15")
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual("Bucketlist cannot be found", str(response.data))
+
+    def test_updateBucketList_by_id(self):
+        """Test for updating a bucketlists by id."""
+        data = {'bucketlist_title': 'Visit Israel'}
+        response = self.client().put("/api/v1/bucketlists/1", json.dumps(data),
+                                     content_type="application/json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual("Bucketlist succesfully updated", str(response.data))
+
+    def test_updateBucketList_that_does_not_exist(self):
+        """Test for updating a bucketlists that does not exist."""
+        data = {'bucketlist_title': 'Visit Israel'}
+        response = self.client().put("/api/v1/bucketlists/15", json.dumps(data),
+                                     content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual("Bucketlist cannot be found", str(response.data))
+
+    def test_updateBucketList_with_the_same_data(self):
+        # code 409
+        """Test for updating a bucketlists with the same data."""
+        data = {'bucketlist_title': 'Visit Paris'}
+        response = self.client().put("/api/v1/bucketlists/1", json.dumps(data),
+                                     content_type="application/json")
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual("There is a conflict in the update",
+                         str(response.data))
+
+    def test_deleteBucketList_by_id(self):
+        """Test for deleting a bucketlist succesfully."""
+        response = self.client().delete("/api/v1/bucketlists/1")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual("Bucketlist succesfully deleted", str(response.data))
+
+    def test_deleteBucketList_that_does_not_exist(self):
+        """Test for deleting a bucketlist that does not exist."""
+        response = self.client().delete("/api/v1/bucketlists/15")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual("Bucketlist cannot be found", str(response.data))
