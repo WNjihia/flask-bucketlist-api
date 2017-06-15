@@ -3,7 +3,6 @@ import jwt
 import os
 
 from app import db
-from run import app
 from datetime import datetime
 from werkzeug.security import generate_password_hash
 
@@ -65,7 +64,8 @@ class Bucketlist(db.Model):
     created_by = db.relationship('User',
                                  backref=db.backref('user', lazy='dynamic'))
     items = db.relationship('Item',
-                            backref=db.backref('bucketlists'))
+                            backref=db.backref('bucketlists'),
+                            cascade="all, delete-orphan")
 
     def __repr__(self):
         """Return printable representation of the object."""
