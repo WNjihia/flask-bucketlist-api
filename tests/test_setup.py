@@ -1,7 +1,6 @@
 """base test file."""
 import unittest
-import os
-import json
+
 from app import create_app, db
 from app.models import User, Bucketlist, Item
 
@@ -12,7 +11,7 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         """Set up the test database and test user."""
         self.app = self.app = create_app(config_name="testing")
-        self.client = self.app.test_client
+        self.client = self.app.test_client()
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
@@ -29,6 +28,10 @@ class BaseTestCase(unittest.TestCase):
         db.session.add(bucketlist)
         db.session.add(item)
         db.session.commit()
+
+        # set header
+        self.auth_header = {'Authorization': user.generate_auth_token(user.id)}
+        self.token = user.generate_auth_token(user.id)
 
     def tearDown(self):
         """Tear down the test database."""
