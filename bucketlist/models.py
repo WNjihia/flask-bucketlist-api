@@ -2,7 +2,7 @@
 import jwt
 import os
 
-from app import db
+from bucketlist import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash
 
@@ -17,9 +17,15 @@ class User(db.Model):
     password = db.Column(db.String(128))
     bucketlist = db.relationship('Bucketlist', backref='user', lazy='dynamic')
 
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
+        self.password = self.set_password(password)
+
     def set_password(self, password):
         """Hash the password."""
-        self.pw_hash = generate_password_hash(password)
+        pw_hash = generate_password_hash(password)
+        return pw_hash
 
     def generate_auth_token(self, id):
         """Generate the Auth Token."""
