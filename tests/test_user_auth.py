@@ -1,6 +1,6 @@
 """test_user_auth.py."""
 import json
-from tests.test import BaseTestCase
+from tests.test_setup import BaseTestCase
 
 
 class UserAuthTestCase(BaseTestCase):
@@ -15,10 +15,10 @@ class UserAuthTestCase(BaseTestCase):
                      'email': 'user@test.com',
                      'password': '1234'
                      }
-        response = self.data.post(self.REGISTER_URL, json.dumps(self.data),
-                                  content_type="application/json")
+        response = self.client.post(self.REGISTER_URL, json.dumps(self.data),
+                                    content_type="application/json")
         self.assertEqual(response.status_code, 201)
-        self.assertEqual("You have successfully registered. Kindly log in",
+        self.assertEqual("You have successfully registered.",
                          str(response.data))
 
     def test_user_registration_when_user_already_exists(self):
@@ -27,10 +27,10 @@ class UserAuthTestCase(BaseTestCase):
                      'email': 'user@test.com',
                      'password': '1234'
                      }
-        self.data.post(self.REGISTER_URL, json.dumps(self.data),
-                       content_type="application/json")
-        response = self.data.post(self.REGISTER_URL, json.dumps(self.data),
-                                  content_type="application/json")
+        self.client.post(self.REGISTER_URL, json.dumps(self.data),
+                         content_type="application/json")
+        response = self.client.post(self.REGISTER_URL, json.dumps(self.data),
+                                    content_type="application/json")
         self.assertEqual(response.status_code, 403)
         self.assertEqual("User already exists!", str(response.data))
 
@@ -39,8 +39,8 @@ class UserAuthTestCase(BaseTestCase):
         self.data = {'username': 'test_username',
                      'password': '1234'
                      }
-        response = self.data.post(self.REGISTER_URL, json.dumps(self.data),
-                                  content_type="application/json")
+        response = self.client.post(self.REGISTER_URL, json.dumps(self.data),
+                                    content_type="application/json")
         self.assertEqual(response.status_code, 403)
         self.assertEqual("Please provide an email!", str(response.data))
 
@@ -56,8 +56,8 @@ class UserAuthTestCase(BaseTestCase):
                      'email': 'me@user.com',
                      'password': '56789'
                      }
-        response = self.data.post(self.REGISTER_URL, json.dumps(self.data),
-                                  content_type="application/json")
+        response = self.client.post(self.REGISTER_URL, json.dumps(self.data),
+                                    content_type="application/json")
         self.assertEqual(response.status_code, 403)
         self.assertEqual("Username already exists! Please provide another",
                          str(response.data))
@@ -86,8 +86,8 @@ class UserAuthTestCase(BaseTestCase):
         self.data = {'username': "johndoe",
                      'email': "me@gmail.com"
                      }
-        response = self.data.post(self.LOGIN_URL, json.dumps(self.data),
-                                  content_type="application/json")
+        response = self.client.post(self.LOGIN_URL, json.dumps(self.data),
+                                    content_type="application/json")
         self.assertEqual(response.status_code, 403)
         self.assertEqual("Invalid username/password!", str(response.data))
 
@@ -96,7 +96,7 @@ class UserAuthTestCase(BaseTestCase):
         self.data = {'username': "jane",
                      'email': "jane@gmail.com"
                      }
-        response = self.data.post(self.LOGIN_URL, json.dumps(self.data),
-                                  content_type="application/json")
+        response = self.client.post(self.LOGIN_URL, json.dumps(self.data),
+                                    content_type="application/json")
         self.assertEqual(response.status_code, 404)
         self.assertEqual("Invalid username/password!", str(response.data))
