@@ -83,7 +83,7 @@ class BucketListTestCase(BaseTestCase):
                                    headers=self.auth_header,
                                    content_type="application/json")
         self.assertEqual(response.status_code, 409)
-        self.assertEqual("No changes detected",
+        self.assertEqual("No updates detected",
                          str(response.data))
 
     def test_delete_BucketList_by_id(self):
