@@ -9,7 +9,7 @@ class UserAuthTestCase(BaseTestCase):
     LOGIN_URL = "/api/v1/auth/login"
     REGISTER_URL = "/api/v1/auth/register"
 
-    def test_user_registration(self):
+    def test_successful_user_registration(self):
         """Test for successful user registration."""
         self.data = {'username': 'test_username',
                      'email': 'user@test.com',
