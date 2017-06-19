@@ -72,6 +72,7 @@ class UserAuthTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual("You have successfully logged in",
                          str(response.data))
+        self.assertTrue(response.auth_token)
 
     def test_user_login_with_invalid_credentials(self):
         """Test for user login with invalid user credentials."""
