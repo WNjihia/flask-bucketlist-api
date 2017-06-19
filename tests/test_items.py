@@ -111,7 +111,7 @@ class ItemsTestCase(BaseTestCase):
                                    headers=self.auth_header,
                                    content_type="application/json")
         self.assertEqual(response.status_code, 409)
-        self.assertEqual("There is a conflict in the update",
+        self.assertEqual("No changes detected",
                          str(response.data))
 
     def test_delete_Item_by_id(self):
