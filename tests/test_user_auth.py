@@ -31,7 +31,7 @@ class UserAuthTestCase(BaseTestCase):
                          content_type="application/json")
         response = self.client.post(self.REGISTER_URL, json.dumps(self.data),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 409)
         self.assertEqual("User already exists!", str(response.data))
 
     def test_user_registration_with_no_email(self):
