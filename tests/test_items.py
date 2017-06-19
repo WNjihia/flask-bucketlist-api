@@ -82,7 +82,7 @@ class ItemsTestCase(BaseTestCase):
                                    data=json.dumps(payload),
                                    headers=self.auth_header,
                                    content_type="application/json")
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual("Item succesfully updated", str(response.data))
 
     def test_update_Items_with_invalid_BucketList_Id(self):
@@ -96,7 +96,7 @@ class ItemsTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual("Bucketlist cannot be found", str(response.data))
 
-    def test_update_Item_that_does_not_exists(self):
+    def test_update_Item_that_does_not_exist(self):
         """Test updating an item that does not exist."""
         payload = {'item_name': 'The Eiffel Tower',
                    'description': 'Tallest building in France'}

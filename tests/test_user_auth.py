@@ -41,7 +41,7 @@ class UserAuthTestCase(BaseTestCase):
                      }
         response = self.client.post(self.REGISTER_URL, json.dumps(self.data),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 400)
         self.assertEqual("Please provide an email!", str(response.data))
 
     def test_user_registration_username_already_exists(self):
@@ -80,7 +80,7 @@ class UserAuthTestCase(BaseTestCase):
                      }
         response = self.data.post(self.LOGIN_URL, json.dumps(self.data),
                                   content_type="application/json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual("Invalid username/password!", str(response.data))
 
         self.data = {'username': "johndoe",
@@ -88,7 +88,7 @@ class UserAuthTestCase(BaseTestCase):
                      }
         response = self.client.post(self.LOGIN_URL, json.dumps(self.data),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual("Invalid username/password!", str(response.data))
 
     def test_user_login_with_unregistered_user(self):

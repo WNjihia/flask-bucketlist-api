@@ -50,7 +50,7 @@ class BucketListTestCase(BaseTestCase):
         """Test for retrieval of a bucketlists that does not exist."""
         response = self.client.get("/api/v1/bucketlists/15",
                                    headers=self.auth_header)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual("Bucketlist cannot be found", str(response.data))
 
     def test_update_BucketList_by_id(self):
@@ -60,7 +60,7 @@ class BucketListTestCase(BaseTestCase):
                                    data=json.dumps(payload),
                                    headers=self.auth_header,
                                    content_type="application/json")
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual("Bucketlist succesfully updated", str(response.data))
 
     def test_update_BucketList_that_does_not_exist(self):
