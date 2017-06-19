@@ -52,14 +52,9 @@ class ItemsTestCase(BaseTestCase):
 
     def test_get_all_BucketListItems(self):
         """Test retrieval of items successfully."""
-        payload = {'item_name': 'The Louvre',
-                   'description': 'Largest museum in Paris'}
-        self.client.post("/api/v1/bucketlists/1/items",
-                         data=json.dumps(payload),
-                         headers=self.auth_header,
-                         content_type="application/json")
         response = self.client.get("/api/v1/bucketlists/1/items")
         self.assertEqual(response.status_code, 200)
+        self.assertIn("The Eiffel Tower", str(response.data))
 
     def test_get_Items_with_invalid_BucketList_Id(self):
         """Test retrieval of items with invalid bucketlist ID."""

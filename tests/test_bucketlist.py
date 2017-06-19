@@ -30,6 +30,7 @@ class BucketListTestCase(BaseTestCase):
         """Test for retrieval of all bucketlists."""
         response = self.client.get(self.URL, headers=self.auth_header)
         self.assertEqual(response.status_code, 200)
+        self.assertIn("Visit Paris", str(response.data))
 
     def test_get_BucketList_by_id(self):
         """Test for retrieval of a bucketlists by id."""
