@@ -43,9 +43,44 @@ class UserRegistration(MethodView):
             return make_response(jsonify(response)), 409
 
 
+class UserLogin(MethodView):
+    def post(self):
+        # get the post data
+        data_posted = request.get_json()
+        try:
+            user = User.query.filter_by(email=data_posted.get('email')).first()
+            auth_token = user.generate_auth_token(user.id)
+
+            if not auth_token:
+                response = {'status': 'fail',
+                            'message': 'Login failed! Please try again'
+                            }
+                return make_response(jsonify(response)), 401
+
+            response = {'status': 'success',
+                        'message': 'You have successfully logged in.'
+                        }
+            return make_response(jsonify(response)), 200
+        except Exception as e:
+            response = {'status': 'fail' + str(e),
+                        'message': 'Login failed! Please try again'
+                        }
+            return make_response(jsonify(response)), 500
+
+
+# define the API Resource
+registration_view = UserRegistration.as_view('register_api')
+login_view = UserLogin.as_view('login_api')
+
 # add rules for API endpoints
 auth_blueprint.add_url_rule(
     '/api/v1/auth/register',
     view_func=registration_view,
+    methods=['POST']
+)
+
+auth_blueprint.add_url_rule(
+    '/api/v1/auth/login',
+    view_func=login_view,
     methods=['POST']
 )
