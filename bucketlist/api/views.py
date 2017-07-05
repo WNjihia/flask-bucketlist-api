@@ -117,7 +117,8 @@ class Bucketlist_View(MethodView):
             info = {
                     'id': bucketlist.id,
                     'title': bucketlist.bucketlist_title,
-                    'date_created': bucketlist.date_created
+                    'date_created': bucketlist.date_created,
+                    'data_modified': bucketlist.data_modified
                     }
             response = {
                         'status': 'success',
@@ -169,7 +170,8 @@ class Items_View(MethodView):
             post_data = request.get_json()
 
             # check if bucketlist exists
-            bucketlist = Bucketlist.query.filter_by(id=bucketlist_id, creator_id=user_id).first()
+            bucketlist = Bucketlist.query.filter_by(id=bucketlist_id,
+                                                    creator_id=user_id).first()
             if not bucketlist:
                 response = {
                             'status': 'fail',
@@ -177,8 +179,10 @@ class Items_View(MethodView):
                             }
                 return make_response(jsonify(response)), 404
 
-            duplicate_item = Item.query.filter_by(item_name=post_data.get('name'),
-                                                  bucketlist_id=bucketlist_id).first()
+            duplicate_item = Item.query.filter_by(item_name=
+                                                  post_data.get('name'),
+                                                  bucketlist_id=
+                                                  bucketlist_id).first()
             if duplicate_item:
                 response = {
                             'status': 'fail',
@@ -198,6 +202,74 @@ class Items_View(MethodView):
                         .format(post_data.get('name'))
                         }
             return make_response(jsonify(response)), 201
+        else:
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a valid auth token!'
+                        }
+            return make_response(jsonify(response)), 401
+
+    def get(self, bucketlist_id, item_id=None):
+        # get the auth token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            user_id = User.decode_auth_token(auth_token)
+
+            # check if bucketlist exists
+            bucketlist = Bucketlist.query.filter_by(id=bucketlist_id,
+                                                    creator_id=user_id).first()
+            if not bucketlist:
+                response = {
+                            'status': 'fail',
+                            'message': 'Bucketlist not found!'
+                            }
+                return make_response(jsonify(response)), 404
+
+            if item_id:
+                item = Item.query.filter_by(bucketlist_id=bucketlist_id,
+                                            id=item_id).first()
+                if not item.is_completed:
+                    status = "Not done"
+                else:
+                    status = "Done"
+                response = {
+                        'id': item.id,
+                        'name': item.item_name,
+                        'description': item.description,
+                        'status': status,
+                        'date_created': item.created_date,
+                        'bucketlist': bucketlist.bucketlist_title
+                }
+                return make_response(jsonify(response)), 200
+
+            response = []
+            items = Item.query.filter_by(bucketlist_id=bucketlist_id)
+            if not items:
+                response = {
+                            'status': 'fail',
+                            'message': 'This bucketlist has no items'
+                            }
+                return make_response(jsonify(response)), 200
+
+            for item in items:
+                if not item.is_completed:
+                    status = "Not done"
+                else:
+                    status = "Done"
+                info = {
+                        'id': item.id,
+                        'name': item.item_name,
+                        'description': item.description,
+                        'status': status,
+                        'date_created': item.created_date,
+                        'bucketlist': bucketlist.bucketlist_title
+                }
+                response.append(info)
+            return make_response(jsonify(response)), 200
         else:
             response = {
                         'status': 'fail',
@@ -229,7 +301,7 @@ api_blueprint.add_url_rule(
 )
 
 api_blueprint.add_url_rule(
-    '/api/v1/bucketlists/<int:bucketlists_id>/<int:items_id>/',
+    '/api/v1/bucketlists/<int:bucketlist_id>/items/<int:item_id>/',
     view_func=add_item_view,
     methods=['GET', 'PUT', 'DELETE']
 )
