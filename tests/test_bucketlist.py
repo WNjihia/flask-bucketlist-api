@@ -18,13 +18,20 @@ class BucketListTestCase(BaseTestCase):
         self.assertEqual("Bucketlist created successfully", str(response.data))
 
     def test_create_new_bucketList_with_invalid_name_format(self):
-        """Test for successful creation of a bucketlist."""
+        """Test for creation of a bucketlist with invalid name format."""
         payload = {'bucketlist_title': ''}
         response = self.client.post(self.URL, data=json.dumps(payload),
                                     headers=self.auth_header,
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual("Invalid name format", str(response.data))
+        self.assertEqual("Invalid name", str(response.data))
+
+        payload = {'bucketlist_title': '@#$%^**^%$'}
+        response = self.client.post(self.URL, data=json.dumps(payload),
+                                    headers=self.auth_header,
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("Invalid name", str(response.data))
 
     def test_create_bucketList_that_exists(self):
         """Test for creation of a bucketlist that already exists."""
@@ -63,7 +70,7 @@ class BucketListTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual("Bucketlist cannot be found", str(response.data))
 
-    def test_update_bucketList_by_id(self):
+    def test_update_bucketList_successfully(self):
         """Test for updating a bucketlists by id."""
         payload = {'bucketlist_title': 'Visit Israel'}
         response = self.client.put("/api/v1/bucketlists/1",
@@ -74,7 +81,7 @@ class BucketListTestCase(BaseTestCase):
         self.assertEqual("Bucketlist succesfully updated", str(response.data))
 
     def test_update_bucketList_that_does_not_exist(self):
-        """Test for updating a bucketlists that does not exist."""
+        """Test for updating a bucketlist that does not exist."""
         payload = {'bucketlist_title': 'Visit Israel'}
         response = self.client.put("/api/v1/bucketlists/15",
                                    data=json.dumps(payload),
@@ -84,7 +91,7 @@ class BucketListTestCase(BaseTestCase):
         self.assertEqual("Bucketlist cannot be found", str(response.data))
 
     def test_update_bucketList_with_the_same_data(self):
-        """Test for updating a bucketlists with the same data."""
+        """Test for updating a bucketlist with the same data."""
         payload = {'bucketlist_title': 'Visit Paris'}
         response = self.client.put("/api/v1/bucketlists/1",
                                    data=json.dumps(payload),
@@ -94,7 +101,7 @@ class BucketListTestCase(BaseTestCase):
         self.assertEqual("No updates detected",
                          str(response.data))
 
-    def test_delete_bucketList_by_id(self):
+    def test_delete_bucketList_successfully(self):
         """Test for deleting a bucketlist succesfully."""
         response = self.client.delete("/api/v1/bucketlists/1",
                                       headers=self.auth_header)
