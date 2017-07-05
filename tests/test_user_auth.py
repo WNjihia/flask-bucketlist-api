@@ -47,6 +47,18 @@ class UserAuthTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual("Please provide an email!", str(response.data))
 
+    def test_user_registration_with_invalid_email_format(self):
+        """Test for user registration with invalid email format."""
+        self.payload = dict(username='test_username',
+                            email='memi.gmail',
+                            password='1234'
+                            )
+        response = self.client.post(self.REGISTER_URL,
+                                    data=json.dumps(self.payload),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual("Invalid email!", str(response.data))
+
     def test_user_registration_with_empty_username(self):
         """Test for user registration with empty username."""
         self.payload = dict(username='',
