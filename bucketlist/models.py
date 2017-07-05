@@ -104,6 +104,12 @@ class Item(db.Model):
         """Return printable representation of the object."""
         return "Item: %d" % self.item_name
 
-    # def __init__(self, item_name):
-    #     """Initialize with item name."""
-    #     self.item_name = item_name
+    def save(self):
+        """Save an item."""
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        """Delete an item."""
+        db.session.delete(self)
+        db.session.commit()
