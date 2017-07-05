@@ -1,6 +1,7 @@
 """test_bucketlistitems.py."""
 import json
 from tests.test_setup import BaseTestCase
+from bucketlist.models import Item
 
 
 class ItemsTestCase(BaseTestCase):
@@ -136,4 +137,22 @@ class ItemsTestCase(BaseTestCase):
         self.assertEqual("Bucketlist cannot be found", str(response.data))
 
     def test_change_Item_status(self):
-        pass
+        """Test change of item status"""
+        payload = {'item_name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        self.client.post("/api/v1/bucketlists/1/items",
+                         data=json.dumps(payload),
+                         headers=self.auth_header,
+                         content_type="application/json")
+        new_item = Item.query.filter_by(item_name="The Louvre")
+        self.assertTrue(new_item.is_completed, False)
+
+        payload = {'is_completed': True}
+        response = self.client.put("/api/v1/bucketlists/1/items/1",
+                                   data=json.dumps(payload),
+                                   headers=self.auth_header,
+                                   content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual("Item succesfully updated", str(response.data))
+        new_item = Item.query.filter_by(item_name="The Louvre")
+        self.assertTrue(new_item.is_completed, True)
