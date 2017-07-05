@@ -100,7 +100,7 @@ class Bucketlist_View(MethodView):
             auth_token = ''
         if auth_token:
             user_id = User.decode_auth_token(auth_token)
-            # add else statement
+
             bucketlist = Bucketlist.query.filter_by(id=id,
                                                     creator_id=
                                                     user_id).first()
@@ -122,6 +122,30 @@ class Bucketlist_View(MethodView):
             response = {
                         'status': 'success',
                         'message': info
+                        }
+            return make_response(jsonify(response)), 200
+        else:
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a valid auth token!'
+                        }
+            return make_response(jsonify(response)), 401
+
+    def delete(self, id):
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            user_id = User.decode_auth_token(auth_token)
+            bucketlist = Bucketlist.query.filter_by(id=id,
+                                                    creator_id=
+                                                    user_id).first()
+            bucketlist.delete()
+            response = {
+                        'status': 'success',
+                        'message': 'Bucketlist successfully deleted!'
                         }
             return make_response(jsonify(response)), 200
         else:
