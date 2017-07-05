@@ -6,13 +6,6 @@ from bucketlist.models import Bucketlist, User
 api_blueprint = Blueprint('api', __name__)
 
 
-def check_if_bucketlist_exists(user_id, title):
-    #  check if bucketlist exists
-    if Bucketlist.query.filter_by(bucketlist_title=title, creator_id=user_id) \
-                                 .first():
-        return True
-
-
 class Bucketlist_View(MethodView):
     def post(self):
         # get the auth token
@@ -24,9 +17,11 @@ class Bucketlist_View(MethodView):
         if auth_token:
             user_id = User.decode_auth_token(auth_token)
             post_data = request.get_json()
-            title = post_data.get('title')
 
-            if check_if_bucketlist_exists(user_id, title):
+            #  check if bucketlist exists
+            if Bucketlist.query.filter_by(bucketlist_title=
+                                          post_data.get('title'),
+                                          creator_id=user_id).first():
                 response = {
                         'status': 'fail',
                         'message': 'Bucketlist already exists!'
@@ -90,9 +85,51 @@ class Bucketlist_View(MethodView):
                 }
                 response.append(info)
             return make_response(jsonify(response)), 200
+        else:
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a valid auth token!'
+                        }
+            return make_response(jsonify(response)), 401
 
-        def put(self):
-            pass
+    def put(self, id):
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            user_id = User.decode_auth_token(auth_token)
+            # add else statement
+            bucketlist = Bucketlist.query.filter_by(id=id,
+                                                    creator_id=
+                                                    user_id).first()
+            if not bucketlist:
+                response = {
+                            'status': 'fail',
+                            'message': 'Bucketlist does not exist!'
+                            }
+                return make_response(jsonify(response)), 404
+
+            post_data = request.get_json()
+            bucketlist.bucketlist_title = post_data.get('title')
+            bucketlist.save()
+            info = {
+                    'id': bucketlist.id,
+                    'title': bucketlist.bucketlist_title,
+                    'date_created': bucketlist.date_created
+                    }
+            response = {
+                        'status': 'success',
+                        'message': info
+                        }
+            return make_response(jsonify(response)), 200
+        else:
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a valid auth token!'
+                        }
+            return make_response(jsonify(response)), 401
 
 
 add_bucket_view = Bucketlist_View.as_view('addbucket_api')
