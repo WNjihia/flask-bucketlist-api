@@ -2,8 +2,8 @@
 import jwt
 import os
 
-from bucketlist import db
-from datetime import datetime
+from bucketlist import db, app
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 
 
@@ -27,25 +27,25 @@ class User(db.Model):
         pw_hash = generate_password_hash(password)
         return pw_hash
 
-    def generate_auth_token(self, id):
+    def encode_auth_token(self, id):
         """Generate the Auth Token."""
         try:
+            expire_date = datetime.utcnow() + timedelta(days=0, minutes=10)
             payload = {
-                'expiration_date': datetime.datetime.utcnow() +
-                datetime.timedelta(days=0, minutes=10),
-                'time_token_is_generated': datetime.datetime.utcnow(),
+                'expiration_date': expire_date,
+                'time_token_is_generated': datetime.utcnow(),
                 'user': id
             }
             return jwt.encode(
                 payload,
-                app.config.get(os.getenv('SECRET')),
+                os.getenv('SECRET'),
                 algorithm='HS256'
             )
         except Exception as e:
             return e
 
     @staticmethod
-    def verify_signature(auth_token):
+    def decode_auth_token(auth_token):
         """Decode the auth token and verify the signature."""
         try:
             payload = jwt.decode(auth_token, os.getenv('SECRET'))
@@ -67,8 +67,6 @@ class Bucketlist(db.Model):
     date_modified = db.Column(db.DateTime, default=datetime.now,
                               onupdate=datetime.now)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created_by = db.relationship('User',
-                                 backref=db.backref('user', lazy='dynamic'))
     items = db.relationship('Item',
                             backref=db.backref('bucketlists'),
                             cascade="all, delete-orphan")
