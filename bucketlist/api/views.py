@@ -6,7 +6,7 @@ from bucketlist.models import Bucketlist, User
 api_blueprint = Blueprint('api', __name__)
 
 
-def check_duplicate_bucketlist(user_id, title):
+def check_if_bucketlist_exists(user_id, title):
     #  check if bucketlist exists
     if Bucketlist.query.filter_by(bucketlist_title=title, creator_id=user_id) \
                                  .first():
@@ -26,7 +26,7 @@ class Bucketlist_View(MethodView):
             post_data = request.get_json()
             title = post_data.get('title')
 
-            if check_duplicate_bucketlist(user_id, title):
+            if check_if_bucketlist_exists(user_id, title):
                 response = {
                         'status': 'fail',
                         'message': 'Bucketlist already exists!'
@@ -60,12 +60,52 @@ class Bucketlist_View(MethodView):
                         }
             return make_response(jsonify(response)), 401
 
+    def get(self, id=None):
+        # get the auth token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            user_id = User.decode_auth_token(auth_token)
+
+            if id:
+                bucketlist = Bucketlist.query.filter_by(id=id, creator_id=
+                                                        user_id).first()
+                response = {
+                            'id': bucketlist.id,
+                            'title': bucketlist.bucketlist_title,
+                            'date_created': bucketlist.date_created
+                }
+                return make_response(jsonify(response)), 200
+
+            response = []
+            bucketlists = Bucketlist.query.filter_by(creator_id=user_id)
+            for bucketlist in bucketlists:
+                info = {
+                        'id': bucketlist.id,
+                        'title': bucketlist.bucketlist_title,
+                        'date_created': bucketlist.date_created
+                }
+                response.append(info)
+            return make_response(jsonify(response)), 200
+
+        def put(self):
+            pass
+
 
 add_bucket_view = Bucketlist_View.as_view('addbucket_api')
 
 # add rules for API endpoints
 api_blueprint.add_url_rule(
-    '/api/v1/bucketlist/',
+    '/api/v1/bucketlists/',
     view_func=add_bucket_view,
-    methods=['POST']
+    methods=['POST', 'GET']
+)
+
+api_blueprint.add_url_rule(
+    '/api/v1/bucketlists/<int:id>',
+    view_func=add_bucket_view,
+    methods=['GET', 'PUT', 'DELETE']
 )
