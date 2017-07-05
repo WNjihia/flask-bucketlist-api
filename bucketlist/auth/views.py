@@ -1,3 +1,7 @@
+import json
+import jwt
+import os
+
 from flask import Blueprint, make_response, jsonify, request
 from flask.views import MethodView
 
@@ -26,7 +30,7 @@ class UserRegistration(MethodView):
                 db.session.commit()
                 response = {
                             'status': 'success',
-                            'message': 'You have been successfully registered'
+                            'message': 'You have been successfully registered.'
                             }
                 return make_response(jsonify(response)), 201
             except Exception as e:
@@ -49,7 +53,12 @@ class UserLogin(MethodView):
         data_posted = request.get_json()
         try:
             user = User.query.filter_by(email=data_posted.get('email')).first()
-            auth_token = user.generate_auth_token(user.id)
+            if not user:
+                response = {'status': 'fail',
+                            'message': 'Invalid username/password!'
+                            }
+                return make_response(jsonify(response)), 401
+            auth_token = user.encode_auth_token(user.id)
 
             if not auth_token:
                 response = {'status': 'fail',
@@ -58,11 +67,13 @@ class UserLogin(MethodView):
                 return make_response(jsonify(response)), 401
 
             response = {'status': 'success',
-                        'message': 'You have successfully logged in.'
+                        'message': 'You have successfully logged in.',
+                        'auth_token': auth_token.decode()
                         }
+
             return make_response(jsonify(response)), 200
         except Exception as e:
-            response = {'status': 'fail' + str(e),
+            response = {'status': str(e),
                         'message': 'Login failed! Please try again'
                         }
             return make_response(jsonify(response)), 500
