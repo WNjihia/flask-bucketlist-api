@@ -16,8 +16,8 @@ class BaseTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
 
-        user = User(username="johndoe",
-                    email="johndoe@gmail.com",
+        user = User(username="cira",
+                    email="ciranjihia@gmail.com",
                     password="password")
         bucketlist = Bucketlist(bucketlist_title="Visit Paris", creator_id=1)
         item = Item(item_name="The Eiffel Tower",
