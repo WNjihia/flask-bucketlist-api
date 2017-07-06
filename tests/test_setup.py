@@ -1,5 +1,6 @@
 """base test file."""
 import unittest
+import json
 
 from bucketlist import create_app, db
 from bucketlist.models import User, Bucketlist, Item
@@ -31,11 +32,19 @@ class BaseTestCase(unittest.TestCase):
             db.session.commit()
         except:
             db.session.rollback()
-        # db.session.commit()
 
-        # set header
-        self.auth_header = {'Authorization': user.encode_auth_token(user.id)}
-        self.token = user.encode_auth_token(user.id)
+    def set_header(self):
+        payload = dict(email='lynn@gmail.com',
+                       password='password'
+                       )
+        response = self.client.post('/api/v1/auth/login',
+                                    data=json.dumps(payload),
+                                    content_type="application/json")
+        res_message = json.loads(response.data.decode())
+        print(res_message)
+        self.token = res_message['auth_token']
+        return {'Authorization': 'Token ' + self.token
+                }
 
     def tearDown(self):
         """Tear down the test database."""

@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, make_response, jsonify, request
 from flask.views import MethodView
 
@@ -26,7 +28,21 @@ class Bucketlist_View(MethodView):
                         'status': 'fail',
                         'message': 'Bucketlist already exists!'
                         }
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 409
+
+            if (post_data.get('title') == ''):
+                response = {
+                        'status': 'fail',
+                        'message': 'Invalid bucketlist title!'
+                        }
+                return make_response(jsonify(response)), 400
+
+            if not re.match('^[ a-zA-Z0-9_.-]+$', post_data.get('title')):
+                response = {
+                            'status': 'fail',
+                            'message': 'Invalid bucketlist title!'
+                            }
+                return make_response(jsonify(response)), 400
 
             try:
                 new_bucketlist = Bucketlist(
@@ -68,6 +84,12 @@ class Bucketlist_View(MethodView):
             if id:
                 bucketlist = Bucketlist.query.filter_by(id=id, creator_id=
                                                         user_id).first()
+                if not bucketlist:
+                    response = {
+                                'status': 'fail',
+                                'message': 'Bucketlist cannot be found'
+                                }
+                    return make_response(jsonify(response)), 404
                 response = {
                             'id': bucketlist.id,
                             'title': bucketlist.bucketlist_title,
@@ -112,13 +134,20 @@ class Bucketlist_View(MethodView):
                 return make_response(jsonify(response)), 404
 
             post_data = request.get_json()
+
+            if post_data.get('title') == bucketlist.bucketlist_title:
+                response = {
+                            'status': 'fail',
+                            'message': 'No updates detected'
+                            }
+                return make_response(jsonify(response)), 409
+
             bucketlist.bucketlist_title = post_data.get('title')
             bucketlist.save()
             info = {
                     'id': bucketlist.id,
                     'title': bucketlist.bucketlist_title,
-                    'date_created': bucketlist.date_created,
-                    'data_modified': bucketlist.data_modified
+                    'date_created': bucketlist.date_created
                     }
             response = {
                         'status': 'success',
@@ -143,6 +172,13 @@ class Bucketlist_View(MethodView):
             bucketlist = Bucketlist.query.filter_by(id=id,
                                                     creator_id=
                                                     user_id).first()
+            if not bucketlist:
+                response = {
+                            'status': 'success',
+                            'message': 'Bucketlist cannot be found'
+                            }
+                return make_response(jsonify(response)), 404
+
             bucketlist.delete()
             response = {
                         'status': 'success',
@@ -270,6 +306,102 @@ class Items_View(MethodView):
                 }
                 response.append(info)
             return make_response(jsonify(response)), 200
+        else:
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a valid auth token!'
+                        }
+            return make_response(jsonify(response)), 401
+
+    def put(self, bucketlist_id, item_id):
+        # get the auth token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            user_id = User.decode_auth_token(auth_token)
+
+            # check if bucketlist exists
+            bucketlist = Bucketlist.query.filter_by(id=bucketlist_id,
+                                                    creator_id=user_id).first()
+            if not bucketlist:
+                response = {
+                            'status': 'fail',
+                            'message': 'Bucketlist not found!'
+                            }
+                return make_response(jsonify(response)), 404
+
+            item = Item.query.filter_by(id=item_id, bucketlist_id=
+                                        bucketlist_id).first()
+            if not item:
+                response = {
+                            'status': 'fail',
+                            'message': 'Item not found!'
+                            }
+                return make_response(jsonify(response)), 404
+            post_data = request.get_json()
+            if post_data.get('status') == "Done":
+                item.is_completed = True
+
+            item.item_name = post_data.get('name')
+            item.description = post_data.get('description')
+            item.save()
+            if not item.is_completed:
+                status = "Not done"
+            else:
+                status = "Done"
+            info = {
+                    'id': item.id,
+                    'name': item.item_name,
+                    'description': item.description,
+                    'status': status,
+                    'date_created': item.created_date,
+                    'date_modified': item.modified_date
+                    }
+            response = {
+                        'status': 'success',
+                        'message': info
+                        }
+            return make_response(jsonify(response)), 200
+        else:
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a valid auth token!'
+                        }
+            return make_response(jsonify(response)), 401
+
+    def delete(self, bucketlist_id, item_id):
+        # get the auth token
+        auth_header = request.headers.get('Authorization')
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
+            auth_token = ''
+        if auth_token:
+            user_id = User.decode_auth_token(auth_token)
+
+            # check if bucketlist exists
+            bucketlist = Bucketlist.query.filter_by(id=bucketlist_id,
+                                                    creator_id=user_id).first()
+            if not bucketlist:
+                response = {
+                            'status': 'fail',
+                            'message': 'Bucketlist not found!'
+                            }
+                return make_response(jsonify(response)), 404
+
+            item = Item.query.filter_by(id=item_id, bucketlist_id=
+                                        bucketlist_id).first()
+            if not item:
+                response = {
+                            'status': 'fail',
+                            'message': 'Item not found!'
+                            }
+                return make_response(jsonify(response)), 404
+
+            item.delete()
         else:
             response = {
                         'status': 'fail',
