@@ -39,13 +39,15 @@ class UserAuthTestCase(BaseTestCase):
     def test_user_registration_with_no_email(self):
         """Test for user registration with no email."""
         self.payload = dict(username='test_username',
-                            password='1234'
+                            password='1234',
+                            email=''
                             )
         response = self.client.post(self.REGISTER_URL,
                                     data=json.dumps(self.payload),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual("Please provide an email!", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide an email!", res_message['message'])
 
     def test_user_registration_with_invalid_email_format(self):
         """Test for user registration with invalid email format."""
@@ -57,7 +59,8 @@ class UserAuthTestCase(BaseTestCase):
                                     data=json.dumps(self.payload),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual("Invalid email!", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Invalid email!", res_message['message'])
 
     def test_user_registration_with_empty_username(self):
         """Test for user registration with empty username."""
@@ -69,7 +72,8 @@ class UserAuthTestCase(BaseTestCase):
                                     data=json.dumps(self.payload),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual("Please provide an email!", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide an email!", res_message['message'])
 
     def test_user_registration_username_already_exists(self):
         """Test for registration with an already existing username."""
@@ -86,13 +90,14 @@ class UserAuthTestCase(BaseTestCase):
         response = self.client.post(self.REGISTER_URL,
                                     data=json.dumps(self.payload),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual("Username already exists! Please provide another",
-                         str(response.data))
+        self.assertEqual(response.status_code, 409)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("User already exists!",
+                         res_message['message'])
 
     def test_user_login(self):
         """Test for successful user login."""
-        self.payload = dict(email="ciranjihia@gmail.com",
+        self.payload = dict(email="lynn@gmail.com",
                             password="password"
                             )
         response = self.client.post(self.LOGIN_URL,
@@ -110,7 +115,8 @@ class UserAuthTestCase(BaseTestCase):
         response = self.client.post(self.LOGIN_URL, data=json.dumps(self.payload),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 401)
-        self.assertEqual("Invalid username/password!", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Invalid username/password!", res_message['message'])
 
         self.payload = dict(email="me@gmail.com",
                             password="ohndoe"
@@ -119,7 +125,8 @@ class UserAuthTestCase(BaseTestCase):
                                     data=json.dumps(self.payload),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 401)
-        self.assertEqual("Invalid username/password!", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Invalid username/password!", res_message['message'])
 
     def test_user_login_with_unregistered_user(self):
         """Test for login with an unregistered user."""
@@ -129,5 +136,6 @@ class UserAuthTestCase(BaseTestCase):
         response = self.client.post(self.LOGIN_URL,
                                     data=json.dumps(self.payload),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual("Invalid username/password!", str(response.data))
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Invalid username/password!", res_message['message'])

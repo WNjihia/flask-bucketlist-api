@@ -1,6 +1,7 @@
 import json
 import jwt
 import os
+import re
 
 from flask import Blueprint, make_response, jsonify, request
 from flask.views import MethodView
@@ -16,6 +17,21 @@ class UserRegistration(MethodView):
     def post(self):
         # get the post data
         data_posted = request.get_json()
+        if ((data_posted.get('email') == '') or
+            (data_posted.get('username') == '') or (data_posted.get(
+                                                    'password') == '')):
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide an email!'
+                        }
+            return make_response(jsonify(response)), 400
+        if not re.match(r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
+                        data_posted.get('email')):
+            response = {
+                        'status': 'fail',
+                        'message': 'Invalid email!'
+                        }
+            return make_response(jsonify(response)), 400
         # check if the user already exists
         user = User.query.filter_by(email=data_posted.get('email')).first()
         if not user:

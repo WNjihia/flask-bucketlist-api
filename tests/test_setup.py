@@ -16,8 +16,8 @@ class BaseTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
 
-        user = User(username="cira",
-                    email="ciranjihia@gmail.com",
+        user = User(username="lynn",
+                    email="lynn@gmail.com",
                     password="password")
         bucketlist = Bucketlist(bucketlist_title="Visit Paris", creator_id=1)
         item = Item(item_name="The Eiffel Tower",
@@ -27,11 +27,15 @@ class BaseTestCase(unittest.TestCase):
         db.session.add(user)
         db.session.add(bucketlist)
         db.session.add(item)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        # db.session.commit()
 
         # set header
-        self.auth_header = {'Authorization': user.generate_auth_token(user.id)}
-        self.token = user.generate_auth_token(user.id)
+        self.auth_header = {'Authorization': user.encode_auth_token(user.id)}
+        self.token = user.encode_auth_token(user.id)
 
     def tearDown(self):
         """Tear down the test database."""
