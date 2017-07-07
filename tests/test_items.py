@@ -7,7 +7,7 @@ from bucketlist.models import Item
 class ItemsTestCase(BaseTestCase):
     """This class contains tests for items."""
 
-    def test_create_new_Item(self):
+    def test_create_new_item(self):
         """Test for successful creation of an item."""
         payload = {'name': 'The Louvre',
                    'description': 'Largest museum in Paris'}
@@ -32,7 +32,7 @@ class ItemsTestCase(BaseTestCase):
     #     res_message = json.loads(response.data.decode('utf8'))
     #     self.assertEqual("Invalid name format", res_message['message'])
 
-    def test_create_Item_that_exists(self):
+    def test_create_item_that_exists(self):
         """Test for creation of an item that already exists."""
         payload = {'name': 'The Eiffel Tower',
                    'description': 'Wrought iron lattice tower in France'}
@@ -44,7 +44,7 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Item already exists!", res_message['message'])
 
-    def test_create_Item_with_non_existent_bucketlist(self):
+    def test_create_item_with_non_existent_bucketlist(self):
         """Test creation of an item with non existent bucketlist."""
         payload = {'name': 'The Louvre',
                    'description': 'Largest museum in Paris'}
@@ -56,7 +56,7 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Bucketlist not found!", res_message['message'])
 
-    def test_get_all_BucketListItems(self):
+    def test_get_all_bucketlistitems(self):
         """Test retrieval of items successfully."""
         response = self.client.get("/api/v1/bucketlists/1/items/",
                                    headers=self.set_header())
@@ -64,7 +64,7 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertIn("The Eiffel Tower", res_message[0]['name'])
 
-    def test_get_Items_with_invalid_BucketList_Id(self):
+    def test_get_items_with_invalid_bucketList_id(self):
         """Test retrieval of items with invalid bucketlist ID."""
         response = self.client.get("/api/v1/bucketlists/15/items/",
                                    headers=self.set_header())
@@ -72,7 +72,7 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Bucketlist not found!", res_message['message'])
 
-    def test_get_Items_by_id(self):
+    def test_get_items_by_id(self):
         """Test retrieval of an item by ID."""
         response = self.client.get("/api/v1/bucketlists/1/items/1/",
                                    headers=self.set_header())
@@ -90,7 +90,7 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Just a tower", res_message['message']['name'])
 
-    def test_update_Items_with_invalid_BucketList_Id(self):
+    def test_update_items_with_invalid_bucketList_id(self):
         """Test updating an item with invalid Bucketlist ID."""
         payload = {'item_name': 'The Eiffel Tower',
                    'description': 'Tallest building in France'}
@@ -102,7 +102,7 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Bucketlist not found!", res_message['message'])
 
-    def test_update_Item_that_does_not_exist(self):
+    def test_update_item_that_does_not_exist(self):
         """Test updating an item that does not exist."""
         payload = {'item_name': 'The Eiffel Tower',
                    'description': 'Tallest building in France'}
@@ -141,7 +141,7 @@ class ItemsTestCase(BaseTestCase):
     #     res_message = json.loads(response.data.decode('utf8'))
     #     self.assertEqual("Item succesfully deleted", res_message['message'])
 
-    def test_delete_Item_that_does_not_exist(self):
+    def test_delete_item_that_does_not_exist(self):
         """Test deleting an item that does not exist."""
         response = self.client.delete("/api/v1/bucketlists/1/items/15/",
                                       headers=self.set_header(),)
@@ -149,7 +149,7 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Item not found!", res_message['message'])
 
-    def test_delete_Items_with_invalid_BucketList_Id(self):
+    def test_delete_items_with_invalid_bucketList_id(self):
         """Test deleting an item with an invalid bucketlist ID."""
         response = self.client.delete("/api/v1/bucketlists/5/items/1/",
                                       headers=self.set_header(),)
