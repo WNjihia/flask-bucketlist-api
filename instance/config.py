@@ -1,5 +1,6 @@
 """config.py."""
 import os
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config(object):
@@ -21,7 +22,8 @@ class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
 
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/testdb'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:////' + os.path.join(basedir,
+                                                           'testdb.db')
     DEBUG = True
 
 
