@@ -13,4 +13,4 @@ env:
   - DB=postgres
 
 after_success:
-  - coveralls
+  coveralls
