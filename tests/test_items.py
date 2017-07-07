@@ -140,6 +140,18 @@ class ItemsTestCase(BaseTestCase):
     #     self.assertEqual(response.status_code, 200)
     #     res_message = json.loads(response.data.decode('utf8'))
     #     self.assertEqual("Item succesfully deleted", res_message['message'])
+    def test_delete_item_successfully(self):
+        """Test deleting an item by ID."""
+        payload = {'item_name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        self.client.post("/api/v1/bucketlists/1/items/",
+                         data=json.dumps(payload),
+                         headers=self.set_header(),
+                         content_type="application/json")
+        response = self.client.delete("/api/v1/bucketlists/1/items/2/",
+                                      headers=self.set_header())
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Item succesfully deleted", res_message['message'])
 
     def test_delete_item_that_does_not_exist(self):
         """Test deleting an item that does not exist."""
