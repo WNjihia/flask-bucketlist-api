@@ -92,7 +92,7 @@ class ItemsTestCase(BaseTestCase):
 
     def test_update_items_with_invalid_bucketList_id(self):
         """Test updating an item with invalid Bucketlist ID."""
-        payload = {'item_name': 'The Eiffel Tower',
+        payload = {'name': 'The Eiffel Tower',
                    'description': 'Tallest building in France'}
         response = self.client.put("/api/v1/bucketlists/15/items/1/",
                                    data=json.dumps(payload),
@@ -104,7 +104,7 @@ class ItemsTestCase(BaseTestCase):
 
     def test_update_item_that_does_not_exist(self):
         """Test updating an item that does not exist."""
-        payload = {'item_name': 'The Eiffel Tower',
+        payload = {'name': 'The Eiffel Tower',
                    'description': 'Tallest building in France'}
         response = self.client.put("/api/v1/bucketlists/1/items/15/",
                                    data=json.dumps(payload),
@@ -115,23 +115,21 @@ class ItemsTestCase(BaseTestCase):
         self.assertEqual("Item not found!", res_message['message'])
 
     def test_update_item_with_the_same_data(self):
-        pass
-    # def test_update_Item_with_same_data(self):
-    #     """Test updating an item with the same data."""
-    #     payload = {'item_name': 'The Eiffel Tower',
-    #                'description': 'Wrought iron lattice tower in France'}
-    #     response = self.client.put("/api/v1/bucketlists/1/items/1/",
-    #                                data=json.dumps(payload),
-    #                                headers=self.set_header(),
-    #                                content_type="application/json")
-    #     self.assertEqual(response.status_code, 409)
-    #     res_message = json.loads(response.data.decode('utf8'))
-    #     self.assertEqual("No updates detected",
-    #                      res_message['message'])
+        """Test updating an item with the same data."""
+        payload = {'name': 'The Eiffel Tower',
+                   'description': 'Wrought iron lattice tower in France'}
+        response = self.client.put("/api/v1/bucketlists/1/items/1/",
+                                   data=json.dumps(payload),
+                                   headers=self.set_header(),
+                                   content_type="application/json")
+        self.assertEqual(response.status_code, 409)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("No updates detected",
+                         res_message['message'])
 
     def test_delete_item_successfully(self):
         """Test deleting an item by ID."""
-        payload = {'item_name': 'The Louvre',
+        payload = {'name': 'The Louvre',
                    'description': 'Largest museum in Paris'}
         self.client.post("/api/v1/bucketlists/1/items/",
                          data=json.dumps(payload),
@@ -161,7 +159,7 @@ class ItemsTestCase(BaseTestCase):
 
     def test_change_item_status(self):
         """Test change of item status"""
-        payload = {'item_name': 'The Louvre',
+        payload = {'name': 'The Louvre',
                    'description': 'Largest museum in Paris'}
         self.client.post("/api/v1/bucketlists/1/items/",
                          data=json.dumps(payload),

@@ -8,6 +8,14 @@ from bucketlist.models import Bucketlist, User, Item
 api_blueprint = Blueprint('api', __name__)
 
 
+def response_for_updates_with_same_data():
+    response = {
+            'status': 'fail',
+            'message': 'No updates detected'
+            }
+    return make_response(jsonify(response)), 409
+
+
 class Bucketlist_View(MethodView):
     def post(self):
         # get the auth token
@@ -300,7 +308,7 @@ class Items_View(MethodView):
                         'id': item.id,
                         'name': item.item_name,
                         'description': item.description,
-                        'status': status,
+                        'completion_status': status,
                         'date_created': item.created_date,
                         'bucketlist': bucketlist.bucketlist_title
                 }
@@ -342,34 +350,29 @@ class Items_View(MethodView):
                             }
                 return make_response(jsonify(response)), 404
             post_data = request.get_json()
+            if ((post_data.get('name')) and
+               (post_data.get('name') != item.item_name)):
+                item.item_name = post_data.get('name')
+            elif ((post_data.get('description')) and
+                  (post_data.get('description') != item.description)):
+                item.description = post_data.get('description')
+            elif ((post_data.get('is_completed')) and
+                  (post_data.get('is_completed') != item.is_completed)):
+                item.is_completed = post_data.get('is_completed')
+            else:
+                return response_for_updates_with_same_data()
+
+            item.save()
             status = ""
             if item.is_completed:
-                status == "Done"
-
-            if (post_data.get('name') == item.item_name) or \
-               (post_data.get('description') == item.description) and \
-               (post_data.get('status') == status):
-                response = {
-                            'status': 'fail',
-                            'message': 'No updates detected'
-                            }
-                return make_response(jsonify(response)), 409
-
-            if post_data.get('status') == "Done":
-                item.is_completed = True
-
-            item.item_name = post_data.get('name')
-            item.description = post_data.get('description')
-            item.save()
-            if not item.is_completed:
-                status = "Not done"
-            else:
                 status = "Done"
+            else:
+                status == "Not done"
             info = {
                     'id': item.id,
                     'name': item.item_name,
                     'description': item.description,
-                    'status': status,
+                    'completion_status': status,
                     'date_created': item.created_date,
                     'date_modified': item.modified_date
                     }
@@ -378,6 +381,19 @@ class Items_View(MethodView):
                         'message': info
                         }
             return make_response(jsonify(response)), 200
+            # status = ""
+            # if item.is_completed:
+            #     status == "Done"
+            #
+            # if (post_data.get('name') == item.item_name) or \
+            #    (post_data.get('description') == item.description) and \
+            #    (post_data.get('status') == status):
+            #     response = {
+            #                 'status': 'fail',
+            #                 'message': 'No updates detected'
+            #                 }
+            #     return make_response(jsonify(response)), 409
+
         else:
             response = {
                         'status': 'fail',
@@ -415,6 +431,11 @@ class Items_View(MethodView):
                 return make_response(jsonify(response)), 404
 
             item.delete()
+            response = {
+                        'status': 'success',
+                        'message': 'Item succesfully deleted'
+                        }
+            return make_response(jsonify(response)), 200
         else:
             response = {
                         'status': 'fail',
