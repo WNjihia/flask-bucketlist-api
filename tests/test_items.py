@@ -157,28 +157,25 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Bucketlist not found!", res_message['message'])
 
-    # def test_change_Item_status(self):
-    #     """Test change of item status"""
-    #     payload = {'item_name': 'The Louvre',
-    #                'description': 'Largest museum in Paris'}
-    #     self.client.post("/api/v1/bucketlists/1/items/",
-    #                      data=json.dumps(payload),
-    #                      headers=self.set_header(),
-    #                      content_type="application/json")
-    #     response = self.client.get("/api/v1/bucketlists/1/items/2/",
-    #                                data=json.dumps(payload),
-    #                                headers=self.set_header())
-    #     res_message = json.loads(response.data.decode('utf8'))
-    #     self.assertEqual(res_message['status'], 'Not done')
-    #
-    #     payload = {'item_name': 'The Louvre',
-    #                'description': 'Largest museum in Paris',
-    #                'status': 'Done'}
-    #     response = self.client.put("/api/v1/bucketlists/1/items/2/",
-    #                                data=json.dumps(payload),
-    #                                headers=self.set_header(),
-    #                                content_type="application/json")
-    #     self.assertEqual(response.status_code, 200)
-    #     new_item = Item.query.filter_by(item_name="The Louvre")
-    #     res_message = json.loads(response.data.decode('utf8'))
-    #     self.assertEqual(res_message['message']['status'], 'Done')
+    def test_change_item_status(self):
+        """Test change of item status"""
+        payload = {'item_name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        self.client.post("/api/v1/bucketlists/1/items/",
+                         data=json.dumps(payload),
+                         headers=self.set_header(),
+                         content_type="application/json")
+        response = self.client.get("/api/v1/bucketlists/1/items/2/",
+                                   data=json.dumps(payload),
+                                   headers=self.set_header())
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual(res_message['status'], 'Not done')
+
+        payload = {'is_completed': 'True'}
+        response = self.client.put("/api/v1/bucketlists/1/items/2/",
+                                   data=json.dumps(payload),
+                                   headers=self.set_header(),
+                                   content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual(res_message['message']['completion_status'], 'Done')
