@@ -222,9 +222,9 @@ class Items_View(MethodView):
             if duplicate_item:
                 response = {
                             'status': 'fail',
-                            'message': 'Item alredy exists!'
+                            'message': 'Item already exists!'
                             }
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 409
 
             new_item = Item(
                             item_name=post_data.get('name'),
@@ -342,6 +342,19 @@ class Items_View(MethodView):
                             }
                 return make_response(jsonify(response)), 404
             post_data = request.get_json()
+            status = ""
+            if item.is_completed:
+                status == "Done"
+
+            if (post_data.get('name') == item.item_name) or \
+               (post_data.get('description') == item.description) and \
+               (post_data.get('status') == status):
+                response = {
+                            'status': 'fail',
+                            'message': 'No updates detected'
+                            }
+                return make_response(jsonify(response)), 409
+
             if post_data.get('status') == "Done":
                 item.is_completed = True
 
