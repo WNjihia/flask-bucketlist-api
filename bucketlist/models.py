@@ -38,7 +38,7 @@ class User(db.Model):
             }
             return jwt.encode(
                 payload,
-                os.getenv('SECRET') or 'oh-so-very-secret',
+                os.getenv('SECRET') or 'ohsoverysecret',
                 algorithm='HS256'
             )
         except Exception as e:
