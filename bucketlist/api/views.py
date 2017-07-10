@@ -324,8 +324,29 @@ class Items_View(MethodView):
                 }
                 return make_response(jsonify(response)), 200
 
+            page = request.args.get("page", default=1, type=int)
+            limit = request.args.get("limit", default=20, type=int)
+            search = request.args.get("q", type=str)
             response = []
-            items = Item.query.filter_by(bucketlist_id=bucketlist_id)
+            if search:
+                items = Item.query.filter_by(bucketlist_id=bucketlist_id) \
+                            .filter(Item.item_name
+                                    .ilike('%' + search + '%')) \
+                                    .paginate(page, limit, False)
+            else:
+                items = Item.query.filter_by(bucketlist_id=bucketlist_id) \
+                            .paginate(page, limit, False)
+            page_count = items.pages
+            if items.has_next:
+                next_page = request.url_root + '&limit=' + str(limit) + \
+                    '?page=' + str(page + 1)
+            else:
+                next_page = 'None'
+            if items.has_prev:
+                prev_page = request.url_root + '&limit=' + str(limit) + \
+                    '?page=' + str(page - 1)
+            else:
+                prev_page = 'None'
             if not items:
                 response = {
                             'status': 'fail',
@@ -333,7 +354,7 @@ class Items_View(MethodView):
                             }
                 return make_response(jsonify(response)), 200
 
-            for item in items:
+            for item in items.items:
                 if not item.is_completed:
                     status = "Not done"
                 else:
@@ -347,6 +368,11 @@ class Items_View(MethodView):
                         'bucketlist': bucketlist.bucketlist_title
                 }
                 response.append(info)
+            meta_data = {'meta_data': {'next_page': next_page,
+                                       'previous_page': prev_page,
+                                       'total_pages': page_count
+                                       }}
+            response.append(meta_data)
             return make_response(jsonify(response)), 200
         else:
             response = {
