@@ -45,12 +45,12 @@ class Bucketlist_View(MethodView):
                         }
                 return make_response(jsonify(response)), 400
 
-            if not re.match('^[ a-zA-Z0-9_.-]+$', post_data.get('title')):
-                response = {
-                            'status': 'fail',
-                            'message': 'Invalid bucketlist title!'
-                            }
-                return make_response(jsonify(response)), 400
+            # if not re.match('^[ a-zA-Z0-9_.-]+$', post_data.get('title')):
+            #     response = {
+            #                 'status': 'fail',
+            #                 'message': 'Invalid bucketlist title!'
+            #                 }
+            #     return make_response(jsonify(response)), 400
 
             try:
                 new_bucketlist = Bucketlist(
@@ -107,9 +107,17 @@ class Bucketlist_View(MethodView):
 
             page = request.args.get("page", default=1, type=int)
             limit = request.args.get("limit", default=20, type=int)
+            search = request.args.get("q", type=str)
             response = []
-            bucketlists = Bucketlist.query.filter_by(creator_id=user_id) \
-                .paginate(page, limit, False)
+            if search:
+                bucketlists = Bucketlist.query \
+                              .filter_by(creator_id=user_id) \
+                              .filter(Bucketlist.bucketlist_title
+                                      .ilike('%' + search + '%')).paginate(
+                                      page, limit, False)
+            else:
+                bucketlists = Bucketlist.query.filter_by(creator_id=user_id) \
+                              .paginate(page, limit, False)
             page_count = bucketlists.pages
             if bucketlists.has_next:
                 next_page = request.url_root + '&limit=' + str(limit) + \
