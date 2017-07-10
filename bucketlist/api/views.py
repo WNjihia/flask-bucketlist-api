@@ -105,15 +105,34 @@ class Bucketlist_View(MethodView):
                 }
                 return make_response(jsonify(response)), 200
 
+            page = request.args.get("page", default=1, type=int)
+            limit = request.args.get("limit", default=20, type=int)
             response = []
-            bucketlists = Bucketlist.query.filter_by(creator_id=user_id)
-            for bucketlist in bucketlists:
+            bucketlists = Bucketlist.query.filter_by(creator_id=user_id) \
+                .paginate(page, limit, False)
+            page_count = bucketlists.pages
+            if bucketlists.has_next:
+                next_page = request.url_root + '&limit=' + str(limit) + \
+                            '?page=' + str(page + 1)
+            else:
+                next_page = 'None'
+            if bucketlists.has_prev:
+                prev_page = request.url_root + '&limit=' + str(limit) + \
+                            '?page=' + str(page - 1)
+            else:
+                prev_page = 'None'
+            for bucketlist in bucketlists.items:
                 info = {
                         'id': bucketlist.id,
                         'title': bucketlist.bucketlist_title,
                         'date_created': bucketlist.date_created
                 }
                 response.append(info)
+            meta_data = {'meta_data': {'next_page': next_page,
+                                       'previous_page': prev_page,
+                                       'total_pages': page_count
+                                       }}
+            response.append(meta_data)
             return make_response(jsonify(response)), 200
         else:
             response = {
@@ -234,6 +253,13 @@ class Items_View(MethodView):
                             }
                 return make_response(jsonify(response)), 409
 
+            # if not re.match("[_A-Za-z][_a-zA-Z0-9]*$", post_data.get('name')):
+            #     response = {
+            #                 'status': 'fail',
+            #                 'message': 'Invalid name format'
+            #                 }
+            #     return make_response(jsonify(response)), 400
+
             new_item = Item(
                             item_name=post_data.get('name'),
                             description=post_data.get('description'),
@@ -350,6 +376,14 @@ class Items_View(MethodView):
                             }
                 return make_response(jsonify(response)), 404
             post_data = request.get_json()
+
+            # if not re.match("[_A-Za-z][_a-zA-Z0-9]*$", post_data.get('name')):
+            #     response = {
+            #                 'status': 'fail',
+            #                 'message': 'Invalid name format'
+            #                 }
+            #     return make_response(jsonify(response)), 400
+
             if ((post_data.get('name')) and
                (post_data.get('name') != item.item_name)):
                 item.item_name = post_data.get('name')
