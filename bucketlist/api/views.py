@@ -45,12 +45,13 @@ class Bucketlist_View(MethodView):
                         }
                 return make_response(jsonify(response)), 400
 
-            # if not re.match('^[ a-zA-Z0-9_.-]+$', post_data.get('title')):
-            #     response = {
-            #                 'status': 'fail',
-            #                 'message': 'Invalid bucketlist title!'
-            #                 }
-            #     return make_response(jsonify(response)), 400
+            title_check = re.match('^[ a-zA-Z0-9_.-]+$', post_data.get('title'))
+            if title_check is None:
+                response = {
+                            'status': 'fail',
+                            'message': 'Invalid bucketlist title!'
+                            }
+                return make_response(jsonify(response)), 400
 
             try:
                 new_bucketlist = Bucketlist(
@@ -120,13 +121,13 @@ class Bucketlist_View(MethodView):
                               .paginate(page, limit, False)
             page_count = bucketlists.pages
             if bucketlists.has_next:
-                next_page = request.url_root + '&limit=' + str(limit) + \
-                            '?page=' + str(page + 1)
+                next_page = request.url_root + 'api/v1/bucketlists' + '?limit=' + str(limit) + \
+                            '&page=' + str(page + 1)
             else:
                 next_page = 'None'
             if bucketlists.has_prev:
-                prev_page = request.url_root + '&limit=' + str(limit) + \
-                            '?page=' + str(page - 1)
+                prev_page = request.url_root + 'api/v1/bucketlists' + '?limit=' + str(limit) + \
+                            '&page=' + str(page - 1)
             else:
                 prev_page = 'None'
             for bucketlist in bucketlists.items:
@@ -261,12 +262,13 @@ class Items_View(MethodView):
                             }
                 return make_response(jsonify(response)), 409
 
-            # if not re.match("[_A-Za-z][_a-zA-Z0-9]*$", post_data.get('name')):
-            #     response = {
-            #                 'status': 'fail',
-            #                 'message': 'Invalid name format'
-            #                 }
-            #     return make_response(jsonify(response)), 400
+            name_check = re.match("^[ a-zA-Z0-9_.-]+$", post_data.get('name'))
+            if name_check is None:
+                response = {
+                            'status': 'fail',
+                            'message': 'Invalid name format'
+                            }
+                return make_response(jsonify(response)), 400
 
             new_item = Item(
                             item_name=post_data.get('name'),
@@ -338,13 +340,13 @@ class Items_View(MethodView):
                             .paginate(page, limit, False)
             page_count = items.pages
             if items.has_next:
-                next_page = request.url_root + '&limit=' + str(limit) + \
-                    '?page=' + str(page + 1)
+                next_page = request.url_root + '/api/v1/bucketlists' + bucketlist_id + '/items' + '?limit=' + str(limit) + \
+                    '&page=' + str(page + 1)
             else:
                 next_page = 'None'
             if items.has_prev:
-                prev_page = request.url_root + '&limit=' + str(limit) + \
-                    '?page=' + str(page - 1)
+                prev_page = request.url_root + '/api/v1/bucketlists/' + bucketlist_id + '/items' + '?limit=' + str(limit) + \
+                    '&page=' + str(page - 1)
             else:
                 prev_page = 'None'
             if not items:

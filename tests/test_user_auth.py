@@ -105,14 +105,16 @@ class UserAuthTestCase(BaseTestCase):
                                     content_type="application/json")
         self.assertEqual(response.status_code, 200)
         res_message = json.loads(response.data.decode('utf8'))
-        self.assertEqual("You have successfully logged in.", res_message['message'])
+        self.assertEqual("You have successfully logged in.",
+                         res_message['message'])
 
     def test_user_login_with_invalid_credentials(self):
         """Test for user login with invalid user credentials."""
         self.payload = dict(email="johndoe@gmail.com",
                             password="johnny"
                             )
-        response = self.client.post(self.LOGIN_URL, data=json.dumps(self.payload),
+        response = self.client.post(self.LOGIN_URL,
+                                    data=json.dumps(self.payload),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 401)
         res_message = json.loads(response.data.decode('utf8'))

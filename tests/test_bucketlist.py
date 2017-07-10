@@ -29,7 +29,7 @@ class BucketListTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Invalid bucketlist title!", res_message['message'])
 
-        payload = {'title': '@#$%^**^%$'}
+        payload = {'title': '@#$%^**^%'}
         response = self.client.post(self.URL, data=json.dumps(payload),
                                     headers=self.set_header(),
                                     content_type="application/json")

@@ -1,7 +1,6 @@
 """test_bucketlistitems.py."""
 import json
 from tests.test_setup import BaseTestCase
-from bucketlist.models import Item
 
 
 class ItemsTestCase(BaseTestCase):
@@ -20,17 +19,17 @@ class ItemsTestCase(BaseTestCase):
         self.assertEqual("Item The Louvre has been added",
                          res_message['message'])
 
-    # def test_create_Item_with_invalid_name_format(self):
-    #     """Test for creation of an item with an invalid name format."""
-    #     payload = {'name': '1234%$#@!^&',
-    #                'description': 'Largest museum in Paris'}
-    #     response = self.client.post("/api/v1/bucketlists/1/items/",
-    #                                 data=json.dumps(payload),
-    #                                 headers=self.set_header(),
-    #                                 content_type="application/json")
-    #     self.assertEqual(response.status_code, 400)
-    #     res_message = json.loads(response.data.decode('utf8'))
-    #     self.assertEqual("Invalid name format", res_message['message'])
+    def test_create_Item_with_invalid_name_format(self):
+        """Test for creation of an item with an invalid name format."""
+        payload = {'name': '[]**%',
+                   'description': 'Largest museum in Paris'}
+        response = self.client.post("/api/v1/bucketlists/1/items/",
+                                    data=json.dumps(payload),
+                                    headers=self.set_header(),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Invalid name format", res_message['message'])
 
     def test_create_item_that_exists(self):
         """Test for creation of an item that already exists."""
