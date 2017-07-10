@@ -86,21 +86,37 @@ python run.py
 ### How to use the API
 
 **Register a user**
+![Alt text](https://image.ibb.co/gsQT4a/Screen_Shot_2017_07_10_at_14_34_15.png)
 **To Login a user**
+![Alt text](https://image.ibb.co/csyTLF/Screen_Shot_2017_07_10_at_12_31_28.png)
 **Create a new BucketList**
+![Alt text](https://image.ibb.co/dbq9cv/Screen_Shot_2017_07_10_at_14_39_18.png)
 **Get all BucketLists**
+![Alt text](https://image.ibb.co/gEhAZa/Screen_Shot_2017_07_10_at_12_35_12.png)
 **Get a single BucketList**
+![Alt text](https://image.ibb.co/cwy1qF/Screen_Shot_2017_07_10_at_14_43_33.png)
 **Update a BucketList**
+![Alt text](https://image.ibb.co/g0jDnv/Screen_Shot_2017_07_10_at_12_34_35.png)
 **Delete a BucketList**
+![Alt text](https://image.ibb.co/jmhYnv/Screen_Shot_2017_07_10_at_12_34_59.png)
 **Create a new BucketList item**
+![Alt text](https://image.ibb.co/jjFa0F/Screen_Shot_2017_07_10_at_12_36_39.png)
 **Get all BucketList items**
+![Alt text](https://image.ibb.co/j0iRqF/Screen_Shot_2017_07_10_at_12_36_53.png)
 **Get a single BucketList item**
+![Alt text](https://image.ibb.co/mhC5Hv/Screen_Shot_2017_07_10_at_14_42_10.png)
 **Update a BucketList item**
+![Alt text](https://image.ibb.co/ifFvja/Screen_Shot_2017_07_10_at_12_37_50.png)
 **Delete a BucketList item**
+![Alt text](https://image.ibb.co/e6pAHv/Screen_Shot_2017_07_10_at_12_38_13.png)
 **Search for:
  -**a BucketList**
+![Alt text](https://image.ibb.co/fnYvHv/Screen_Shot_2017_07_10_at_14_36_31.png)
  -**an Item**
+![Alt text](https://image.ibb.co/imZfja/Screen_Shot_2017_07_10_at_14_35_56.png)
 **Pagination**
+![Alt text](https://image.ibb.co/kPcYnv/Screen_Shot_2017_07_10_at_12_33_08.png)
+![Alt text](https://image.ibb.co/f3dHEa/Screen_Shot_2017_07_10_at_12_33_24.png)
 
 ### Testing
 
