@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/93600bb65a2d4e51b0659003115ea6d6)](https://www.codacy.com/app/WNjihia/flask-bucketlist-api?utm_source=github.com&utm_medium=referral&utm_content=WNjihia/flask-bucketlist-api&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/WNjihia/flask-bucketlist-api.svg?branch=master)](https://travis-ci.org/WNjihia/flask-bucketlist-api)
 [![Coverage Status](https://coveralls.io/repos/github/WNjihia/flask-bucketlist-api/badge.svg?branch=develop)](https://coveralls.io/github/WNjihia/flask-bucketlist-api?branch=develop)
 
