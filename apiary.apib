@@ -1,80 +1,436 @@
 FORMAT: 1A
 HOST: http://polls.apiblueprint.org/
 
-# BucketList
+# BucketList-API
+This is a Flask API for an online BucketList service.
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+This API requires token-based authentication to access resources.
+It also has pagination and search capabilities on the resources requested.
 
-## Questions Collection [/questions]
+The features attached to the service include:
+* user registration
+* authenticating a user
+* creating a new bucket list
+* updating and deleting bucket lists
+* retrieving a list of all created bucket lists by a registered user.
+* creating a new bucket list item
+* updating and deleting bucket list items
+* retrieving a list of all created bucket list items by a registered user.
 
-### List All Questions [GET]
+## Group User Authentication
 
-+ Response 200 (application/json)
+## Login [/auth/login/]
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
+### Authenticate a user and generate a token [POST]
 
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
+Use your correct email and password.
+Note the token returned on successful login. It is required to access other
+resources.
 
 + Request (application/json)
 
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
+            "email": "kevin@yahoo.com",
+            "password": "password"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "token": "ARandomtok3n"
+        }
+
+## Group Resources
+
+## Registration [/auth/register/]
+
+### Register a new user [POST]
+
+You may use any name or password combination for the registration.
+
++ Request (application/json)
+
+        {
+            "username": "kevin",
+            "email": "kevin@yahoo.com",
+            "password": "password"
         }
 
 + Response 201 (application/json)
 
+        {
+            "message": "You have been successfully registered."
+        }
+
+
+## BucketList Resources [/api/v1/bucketlists/]
+
+### Create a new bucketlist [POST]
+
+Create a new bucketlist by making a `POST` request to the `/api/v1/bucketlists/` path
+
++ Request (application/json)
+
     + Headers
 
-            Location: /questions/2
+            Authorization: "Token <JWT token>"
 
     + Body
 
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+                "title": "Learn how to swim"
             }
+
++ Response 201 (application/json)
+
+        {
+            "message": "Bucketlist Learn how to swim has been added"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "message": "Invalid bucketlist title!"
+        }
+
++ Response 409 (application/json)
+
+        {
+            "message": "Bucketlist already exists!"
+        }
+
+### Retrieve all bucketlists [GET]
+
+Retrieve all BucketLists that are owned by the current user
+
+Optional request parameters:
+
+- `page` default is 1
+- `limit` default is 20
+
++ Parameters
+
+    + page (optional, int) - the page to receive
+    + limit (optional, int) - the number of bucketlist results per page
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
++ Response 200 (application/json)
+
+        {
+           "id": <id>,
+           "title": "Learn how to swim",
+           "date_created": "Wed, 05 Jul 2017 10:02:03 GMT"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Bucketlist cannot be found"
+        }
+
+## Single BucketList Resource [/api/v1/bucketlists/<bucketlist_id>/]
+
+### Get a single bucketlist [GET]
+
+Retrieve a single bucketlist
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
++ Response 200 (application/json)
+
+        {
+            "id": <id>,
+            "title": "Learn how to swim",
+            "date_created": "Wed, 05 Jul 2017 10:02:03 GMT"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Bucketlist cannot be found"
+        }
+
+### Update a bucketlist [PUT]
+
+Update a single bucketlist
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
+    + Body
+
+            {
+                "title": "Learn how to play golf"
+            }
+
++ Response 200 (application/json)
+
+      {
+          "id": <id>,
+          "title": "Learn how to play golf",
+          "date_created": "Wed, 05 Jul 2017 10:02:03 GMT"
+      }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Bucketlist cannot be found"
+        }
+
++ Response 409 (application/json)
+
+        {
+            "message": "No updates detected"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
+### Delete a bucketlist [DELETE]
+
+Delete a single bucketlist
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
++ Response 200 (application/json)
+
+        {
+            "message": "Bucketlist successfully deleted!"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Bucketlist cannot be found"
+        }
+
+## BucketList Items Resources [/api/v1/bucketlists/<bucketlist_id>/items/]
+
+### Create a new bucketlist item [POST]
+
+Create a new item in a bucketlist
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
+    + Body
+
+            {
+                "name": "Item on golf"
+                "description": "Golf - Great sport"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "message": "Item Item on golf has been added"
+        }
+
++ Response 400 (application/json)
+
+        {
+            "message": "Invalid name format"
+        }
+
++ Response 409 (application/json)
+
+        {
+            "message": "Item already exists!"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Bucketlist cannot be found"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
+### List all bucketlist item [GET]
+
+Retrieve all items in a bucketlist
+
+Optional request parameters:
+
+- `page` default is 1
+- `limit` default is 20
+
++ Parameters
+
+    + page (optional, int) - the page to receive
+    + limit (optional, int) - the number of bucketlist item results per page
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
++ Response 200 (application/json)
+
+        {
+            "id": <id>,
+            "name": "Item on golf",
+            'description': "Golf - Great sport",
+            'status': "Not done",
+            'date_created': "Wed, 05 Jul 2017 10:02:03 GMT",
+            'bucketlist': "Learn how to play golf"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Bucketlist cannot be found"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
+## Single BucketList Items Resources [/api/v1/bucketlists/<bucketlist_id>/items/<item_id>/]
+
+### Retrieve a single bucketlist item [GET]
+
+Retrieve a single item in a bucketlist
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
++ Response 200 (application/json)
+
+        {
+            "id": <id>,
+            "name": "Item on golf",
+            'description': "Golf - Great sport",
+            'status': "Not done",
+            'date_created': "Wed, 05 Jul 2017 10:02:03 GMT",
+            'bucketlist': "Learn how to play golf"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Bucketlist cannot be found"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
+### Update a single bucketlist item [PUT]
+
+Update a single bucketlist item
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
+    + Body
+
+            {
+                "name": "Item1"
+            }
+
++ Response 200 (application/json)
+
+        {
+            "id": <id>,
+            "name": "Item1",
+            'description': "Golf - Great sport",
+            'completion_status': "Not done",
+            'date_created': "Wed, 05 Jul 2017 10:02:03 GMT",
+            'date_modified': "Wed, 05 Jul 2017 10:02:03 GMT"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Item be found"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
+### Delete a single bucketlist item [DELETE]
+
+Delete a single bucketlist item
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
++ Response 200 (application/json)
+
+        {
+            "message": "Item succesfully deleted"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Item not found"
+        }
