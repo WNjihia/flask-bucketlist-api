@@ -17,14 +17,25 @@ class UserRegistration(MethodView):
     def post(self):
         # get the post data
         data_posted = request.get_json()
-        if ((data_posted.get('email') == '') or
-            (data_posted.get('username') == '') or (data_posted.get(
-                                                    'password') == '')):
+        if (data_posted.get('email') == ''):
             response = {
                         'status': 'fail',
-                        'message': 'Insufficient data'
+                        'message': 'Please provide an email!'
                         }
             return make_response(jsonify(response)), 400
+        if (data_posted.get('username') == ''):
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a username!'
+                        }
+            return make_response(jsonify(response)), 400
+        if (data_posted.get('password') == ''):
+            response = {
+                        'status': 'fail',
+                        'message': 'Please a valid password'
+                        }
+            return make_response(jsonify(response)), 400
+
         if not re.match(r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
                         data_posted.get('email')):
             response = {
