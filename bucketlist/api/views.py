@@ -252,7 +252,8 @@ class Bucketlist_View(MethodView):
         info = {
                 'id': bucketlist.id,
                 'title': bucketlist.bucketlist_title,
-                'date_created': bucketlist.date_created
+                'date_created': bucketlist.date_created,
+                'date_modified': bucketlist.date_modified
                 }
         response = {
                     'status': 'success',
@@ -581,19 +582,34 @@ class Items_View(MethodView):
             return make_response(jsonify(response)), 404
 
         post_data = request.get_json()
-        if item.item_name == post_data.get('name'):
-            return response_for_updates_with_same_data()
-        if item.item_name == post_data.get('description'):
-            return response_for_updates_with_same_data()
+        if post_data.get('is_completed'):
+            if item.item_name == post_data.get('name') and \
+                    item.description == post_data.get('description') and \
+                    item.is_completed == post_data.get('is_completed'):
+                        return response_for_updates_with_same_data()
+
+        if item.item_name == post_data.get('name') and \
+                item.description == post_data.get('description'):
+                    return response_for_updates_with_same_data()
+
         item.item_name = post_data.get('name')
         item.description = post_data.get('description')
         if post_data.get('is_completed'):
-            if (post_data.get('is_completed') is True and
-                item.is_completed is True) or \
-               (post_data.get('is_completed') is False and
-               item.is_completed is False):
-                return response_for_updates_with_same_data()
-        item.description = post_data.get('is_completed')
+            item.is_completed = post_data.get('is_completed')
+
+        # if item.item_name == post_data.get('name'):
+        #     return response_for_updates_with_same_data()
+        # if item.item_name == post_data.get('description'):
+        #     return response_for_updates_with_same_data()
+        # if post_data.get('is_completed'):
+        #     if (post_data.get('is_completed') == "true" and
+        #         item.is_completed is True) or \
+        #        (post_data.get('is_completed') == "false" and
+        #        item.is_completed is False):
+        #         return response_for_updates_with_same_data()
+        # item.item_name = post_data.get('name')
+        # item.description = post_data.get('description')
+        # item.is_completed = post_data.get('is_completed')
 
         item.save()
 
