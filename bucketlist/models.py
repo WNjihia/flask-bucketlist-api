@@ -73,7 +73,7 @@ class Bucketlist(db.Model):
 
     def __repr__(self):
         """Return printable representation of the object."""
-        return "Bucketlist: %d" % self.bucketlist_title
+        return "Bucketlist: {}}".format(self.bucketlist_title)
 
     def save(self):
         """Save a bucketlist."""
@@ -102,7 +102,7 @@ class Item(db.Model):
 
     def __repr__(self):
         """Return printable representation of the object."""
-        return "Item: %d" % self.item_name
+        return "Item: {}".format(self.item_name)
 
     def save(self):
         """Save an item."""
