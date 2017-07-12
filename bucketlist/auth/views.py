@@ -22,7 +22,7 @@ class UserRegistration(MethodView):
                                                     'password') == '')):
             response = {
                         'status': 'fail',
-                        'message': 'Please provide an email!'
+                        'message': 'Insufficient data'
                         }
             return make_response(jsonify(response)), 400
         if not re.match(r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
