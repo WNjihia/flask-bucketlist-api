@@ -73,7 +73,7 @@ class UserAuthTestCase(BaseTestCase):
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
         res_message = json.loads(response.data.decode('utf8'))
-        self.assertEqual("Please provide an email!", res_message['message'])
+        self.assertEqual("Please provide a username!", res_message['message'])
 
     def test_user_registration_username_already_exists(self):
         """Test for registration with an already existing username."""
@@ -130,6 +130,7 @@ class UserAuthTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Invalid username/password!", res_message['message'])
 
+    # repetitive test
     def test_user_login_with_unregistered_user(self):
         """Test for login with an unregistered user."""
         self.payload = dict(email="jane@gmail.com",
