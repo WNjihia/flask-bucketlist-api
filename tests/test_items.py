@@ -168,13 +168,14 @@ class ItemsTestCase(BaseTestCase):
                                    data=json.dumps(payload),
                                    headers=self.set_header())
         res_message = json.loads(response.data.decode('utf8'))
-        self.assertEqual(res_message['status'], 'Not done')
+        self.assertFalse(res_message['is_completed'], False)
 
-        payload = {'is_completed': 'True'}
+        payload = {'is_completed': 'true'}
         response = self.client.put("/api/v1/bucketlists/1/items/2/",
                                    data=json.dumps(payload),
                                    headers=self.set_header(),
                                    content_type="application/json")
         self.assertEqual(response.status_code, 200)
         res_message = json.loads(response.data.decode('utf8'))
+        print(res_message)
         self.assertEqual(res_message['message']['completion_status'], 'Done')
