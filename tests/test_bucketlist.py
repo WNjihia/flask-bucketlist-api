@@ -19,6 +19,16 @@ class BucketListTestCase(BaseTestCase):
         self.assertEqual("Bucketlist Visit Kenya has been added",
                          res_message['message'])
 
+    def test_create_new_bucketlist_with_invalid_token(self):
+        """Test for creation of a bucketlist with an invalid token."""
+        payload = {'title': 'Visit Kenya'}
+        response = self.client.post(self.URL, data=json.dumps(payload),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
+
     def test_create_new_bucketlist_with_invalid_name_format(self):
         """Test for creation of a bucketlist with invalid name format."""
         payload = {'title': ''}
@@ -55,13 +65,22 @@ class BucketListTestCase(BaseTestCase):
         self.assertIn("Visit Paris", res_message[0]['title'])
 
     def test_get_bucketlist_by_id(self):
-        """Test for retrieval of a bucketlists by id."""
+        """Test for retrieval of a bucketlist by id."""
         # Get bucketlist with ID 1
         response = self.client.get("/api/v1/bucketlists/1/",
                                    headers=self.set_header())
         self.assertEqual(response.status_code, 200)
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual('Visit Paris', res_message['title'])
+
+    def test_get_bucketlist_with_invalid_token(self):
+        """Test for retrieval of a bucketlist with an invalid token."""
+        # Get bucketlist with ID 1
+        response = self.client.get("/api/v1/bucketlists/1/")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual('Please provide a valid auth token!',
+                         res_message['message'])
 
     def test_get_bucketlist_that_does_not_exist(self):
         """Test for retrieval of a bucketlists that does not exist."""
@@ -81,6 +100,16 @@ class BucketListTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Visit Israel", res_message['message']['title'])
+
+    def test_update_bucketlist_with_invalid_token(self):
+        """Test for updating a bucketlist with an invalid token."""
+        payload = {'title': 'Visit Israel'}
+        response = self.client.put("/api/v1/bucketlists/1/",
+                                   data=json.dumps(payload),
+                                   content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!", res_message['message'])
 
     def test_update_bucketlist_that_does_not_exist(self):
         """Test for updating a bucketlist that does not exist."""
@@ -107,6 +136,23 @@ class BucketListTestCase(BaseTestCase):
 
     def test_delete_bucketlist_successfully(self):
         """Test for deleting a bucketlist succesfully."""
+        response = self.client.delete("/api/v1/bucketlists/1/",
+                                      headers=self.set_header())
+        self.assertEqual(response.status_code, 200)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Bucketlist successfully deleted!",
+                         res_message['message'])
+
+    def test_delete_bucketlist_with_invalid_token(self):
+        """Test for deleting a bucketlist with an invalid token."""
+        response = self.client.delete("/api/v1/bucketlists/1/")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
+
+    def test_delete_bucketlist_with_invalid_bucketlist(self):
+        """Test for deleting a bucketlist with an invalid bucketlist."""
         response = self.client.delete("/api/v1/bucketlists/1/",
                                       headers=self.set_header())
         self.assertEqual(response.status_code, 200)
