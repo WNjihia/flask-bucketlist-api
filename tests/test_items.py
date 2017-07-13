@@ -19,6 +19,18 @@ class ItemsTestCase(BaseTestCase):
         self.assertEqual("Item The Louvre has been added",
                          res_message['message'])
 
+    def test_create_new_item_with_invalid_token(self):
+        """Test for creation of an item with an invalid token."""
+        payload = {'name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        response = self.client.post("/api/v1/bucketlists/1/items/",
+                                    data=json.dumps(payload),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
+
     def test_create_Item_with_invalid_name_format(self):
         """Test for creation of an item with an invalid name format."""
         payload = {'name': '[]**%',
@@ -63,6 +75,14 @@ class ItemsTestCase(BaseTestCase):
         res_message = json.loads(response.data.decode('utf8'))
         self.assertIn("The Eiffel Tower", res_message[0]['name'])
 
+    def test_get_all_bucketlistitems_with_invalid_token(self):
+        """Test retrieval of items with an invalid token."""
+        response = self.client.get("/api/v1/bucketlists/1/items/")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertIn("Please provide a valid auth token!",
+                      res_message['message'])
+
     def test_get_items_with_invalid_bucketList_id(self):
         """Test retrieval of items with invalid bucketlist ID."""
         response = self.client.get("/api/v1/bucketlists/15/items/",
@@ -88,6 +108,18 @@ class ItemsTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 201)
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("Just a tower", res_message['message']['name'])
+
+    def test_update_item_with_invalid_token(self):
+        """Test updating an item with an invlid token."""
+        payload = {'name': 'Just a tower',
+                   'description': 'Tallest building in France'}
+        response = self.client.put("/api/v1/bucketlists/1/items/1/",
+                                   data=json.dumps(payload),
+                                   content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
 
     def test_update_items_with_invalid_bucketList_id(self):
         """Test updating an item with invalid Bucketlist ID."""
@@ -178,3 +210,26 @@ class ItemsTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 200)
         res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual(res_message['message']['completion_status'], True)
+
+    def test_change_item_status_with_invalid_token(self):
+        """Test change of item status with an invalid token"""
+        payload = {'name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        self.client.post("/api/v1/bucketlists/1/items/",
+                         data=json.dumps(payload),
+                         headers=self.set_header(),
+                         content_type="application/json")
+        response = self.client.get("/api/v1/bucketlists/1/items/2/",
+                                   data=json.dumps(payload),
+                                   headers=self.set_header())
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertFalse(res_message['is_completed'], False)
+
+        payload = {'is_completed': 'true'}
+        response = self.client.patch("/api/v1/bucketlists/1/items/2/",
+                                     data=json.dumps(payload),
+                                     content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual(res_message['message'],
+                         "Please provide a valid auth token!")
