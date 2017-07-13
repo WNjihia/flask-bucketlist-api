@@ -368,7 +368,7 @@ Retrieve a single item in a bucketlist
             "message": "Please provide a valid auth token!"
         }
 
-### Update a single bucketlist item [PUT]
+### Update a bucketlist item [PUT]
 
 Update a single bucketlist item
 
@@ -381,7 +381,53 @@ Update a single bucketlist item
     + Body
 
             {
-                "name": "Item1"
+                "name": "Item1",
+                'description': "Golf - Great sport"
+            }
+
++ Response 201 (application/json)
+
+        {
+            "id": <id>,
+            "name": "Item1",
+            'description': "Golf - Great sport",
+            'is_completed': "False",
+            'date_created': "Wed, 05 Jul 2017 10:02:03 GMT",
+            'date_modified': "Wed, 05 Jul 2017 10:02:03 GMT"
+        }
+
++ Response 409 (application/json)
+
+        {
+            "message": "No updates detected"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "message": "Item be found"
+        }
+
++ Response 401 (application/json)
+
+        {
+            "message": "Please provide a valid auth token!"
+        }
+
+### Update a bucketlist item completion status [PATCH]
+
+Update bucketlist item is_completed attribute
+
++ Request (application/json)
+
+    + Headers
+
+            Authorization: "Token <JWT token>"
+
+    + Body
+
+            {
+                "is_completed": "true"
             }
 
 + Response 200 (application/json)
@@ -390,9 +436,15 @@ Update a single bucketlist item
             "id": <id>,
             "name": "Item1",
             'description': "Golf - Great sport",
-            'completion_status': "Not done",
+            'is_completed': "True",
             'date_created': "Wed, 05 Jul 2017 10:02:03 GMT",
             'date_modified': "Wed, 05 Jul 2017 10:02:03 GMT"
+        }
+
++ Response 409 (application/json)
+
+        {
+            "message": "No updates detected"
         }
 
 + Response 404 (application/json)
