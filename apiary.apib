@@ -19,7 +19,7 @@ The features attached to the service include:
 
 ## Group User Authentication
 
-## Login [/auth/login/]
+## Login [/api/v1/auth/login]
 
 ### Authenticate a user and generate a token [POST]
 
@@ -42,7 +42,7 @@ resources.
 
 ## Group Resources
 
-## Registration [/auth/register/]
+## Registration [/api/v1/auth/register]
 
 ### Register a new user [POST]
 
@@ -139,7 +139,7 @@ Optional request parameters:
             "message": "Bucketlist cannot be found"
         }
 
-## Single BucketList Resource [/api/v1/bucketlists/<bucketlist_id>/]
+## Single BucketList Resource [/api/v1/bucketlists/<int:id>/]
 
 ### Get a single bucketlist [GET]
 
@@ -241,7 +241,7 @@ Delete a single bucketlist
             "message": "Bucketlist cannot be found"
         }
 
-## BucketList Items Resources [/api/v1/bucketlists/<bucketlist_id>/items/]
+## BucketList Items Resources [/api/v1/bucketlists/<int:bucketlist_id>/items/]
 
 ### Create a new bucketlist item [POST]
 
@@ -333,7 +333,7 @@ Optional request parameters:
             "message": "Please provide a valid auth token!"
         }
 
-## Single BucketList Items Resources [/api/v1/bucketlists/<bucketlist_id>/items/<item_id>/]
+## Single BucketList Items Resources [/api/v1/bucketlists/<int:bucketlist_id>/items/<int:item_id>/]
 
 ### Retrieve a single bucketlist item [GET]
 
