@@ -472,7 +472,7 @@ class Items_View(MethodView):
     def patch(self, bucketlist_id, item_id):
         """
         Method: `PATCH`
-        Update a bucketlist item attribute.
+        Update a bucketlist item completion status.
         `URL` path: `/api/v1/bucketlists/<bucketlist_id>/items/<item_id>/`
         """
         # validate token
@@ -507,27 +507,19 @@ class Items_View(MethodView):
 
         post_data = request.get_json()
 
-        if (post_data.get('name')):
-            if (post_data.get('name') != item.item_name):
-                if validate_input_format(post_data.get('name')):
-                    response = {
-                                'status': 'fail',
-                                'message': 'Invalid bucketlist name!'
-                                }
-                    return make_response(jsonify(response)), 400
-                item.item_name = post_data.get('name')
-            else:
+        if item.is_completed is True:
+            if post_data.get('is_completed') == "true":
                 return response_for_updates_with_same_data()
-        if (post_data.get('description')):
-            if (post_data.get('description') != item.description):
-                item.description = post_data.get('description')
-            else:
+        if item.is_completed is False:
+            if post_data.get('is_completed') == "false":
                 return response_for_updates_with_same_data()
-        if (post_data.get('is_completed')):
-            if (post_data.get('is_completed') != item.is_completed):
-                item.is_completed = post_data.get('is_completed')
-            else:
-                return response_for_updates_with_same_data()
+
+        item.is_completed = post_data.get('is_completed')
+        # if (post_data.get('is_completed')):
+        #     if (post_data.get('is_completed') != item.is_completed):
+        #         item.is_completed = post_data.get('is_completed')
+        #     else:
+        #         return response_for_updates_with_same_data()
 
         item.save()
 
@@ -582,34 +574,12 @@ class Items_View(MethodView):
             return make_response(jsonify(response)), 404
 
         post_data = request.get_json()
-        if post_data.get('is_completed'):
-            if item.item_name == post_data.get('name') and \
-                    item.description == post_data.get('description') and \
-                    item.is_completed == post_data.get('is_completed'):
-                        return response_for_updates_with_same_data()
-
         if item.item_name == post_data.get('name') and \
-                item.description == post_data.get('description'):
-                    return response_for_updates_with_same_data()
+           item.description == post_data.get('description'):
+            return response_for_updates_with_same_data()
 
         item.item_name = post_data.get('name')
         item.description = post_data.get('description')
-        if post_data.get('is_completed'):
-            item.is_completed = post_data.get('is_completed')
-
-        # if item.item_name == post_data.get('name'):
-        #     return response_for_updates_with_same_data()
-        # if item.item_name == post_data.get('description'):
-        #     return response_for_updates_with_same_data()
-        # if post_data.get('is_completed'):
-        #     if (post_data.get('is_completed') == "true" and
-        #         item.is_completed is True) or \
-        #        (post_data.get('is_completed') == "false" and
-        #        item.is_completed is False):
-        #         return response_for_updates_with_same_data()
-        # item.item_name = post_data.get('name')
-        # item.description = post_data.get('description')
-        # item.is_completed = post_data.get('is_completed')
 
         item.save()
 
