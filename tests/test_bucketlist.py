@@ -109,7 +109,8 @@ class BucketListTestCase(BaseTestCase):
                                    content_type="application/json")
         self.assertEqual(response.status_code, 401)
         res_message = json.loads(response.data.decode('utf8'))
-        self.assertEqual("Please provide a valid auth token!", res_message['message'])
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
 
     def test_update_bucketlist_that_does_not_exist(self):
         """Test for updating a bucketlist that does not exist."""
