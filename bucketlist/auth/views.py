@@ -36,6 +36,13 @@ class UserRegistration(MethodView):
                         }
             return make_response(jsonify(response)), 400
 
+        if (len(data_posted.get('password')) < 8):
+            response = {
+                        'status': 'fail',
+                        'message': 'Password too short!'
+                        }
+            return make_response(jsonify(response)), 400
+
         if not re.match(r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
                         data_posted.get('email')):
             response = {
