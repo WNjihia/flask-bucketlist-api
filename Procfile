@@ -1,1 +1,3 @@
-web: python run.py 0.0.0.0:$PORT
+web: gunicorn app:app
+init: python manage.py db init
+upgrade: python manage.py db upgrade
