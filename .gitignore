@@ -1,2 +1,8 @@
 *.pyc
 .DS_Store
+.env
+.cache/*
+.coverage
+instance/testdb.db
+tests/.coverage
+tests/cover/

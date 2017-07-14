@@ -1,0 +1,36 @@
+reporter: apiary
+custom:
+  apiaryApiKey: adf9b2e7b27564c58d233cd0f55b4906
+  apiaryApiName: bucketlistwnjihia
+dry-run: null
+hookfiles: null
+language: python
+sandbox: false
+server: python run.py
+server-wait: 3
+init: false
+names: false
+only: []
+output: []
+header: []
+sorted: false
+user: null
+inline-errors: false
+details: false
+method: []
+color: true
+level: info
+timestamp: false
+silent: false
+path: []
+hooks-worker-timeout: 5000
+hooks-worker-connect-timeout: 1500
+hooks-worker-connect-retry: 500
+hooks-worker-after-connect-wait: 100
+hooks-worker-term-timeout: 5000
+hooks-worker-term-retry: 500
+hooks-worker-handler-host: 127.0.0.1
+hooks-worker-handler-port: 61321
+config: ./dredd.yml
+blueprint: /Users/waithiranjihia/flask-bucketlist-api/apiary.apib
+endpoint: 'http://127.0.0.1:5000'

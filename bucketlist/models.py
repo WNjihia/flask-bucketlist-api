@@ -2,8 +2,8 @@
 import jwt
 import os
 
-from bucketlist import db
-from datetime import datetime
+from bucketlist import db, app
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
 
 
@@ -27,29 +27,29 @@ class User(db.Model):
         pw_hash = generate_password_hash(password)
         return pw_hash
 
-    def generate_auth_token(self, id):
+    def encode_auth_token(self, id):
         """Generate the Auth Token."""
         try:
+            expire_date = datetime.utcnow() + timedelta(days=0, minutes=10)
             payload = {
-                'expiration_date': datetime.datetime.utcnow() +
-                datetime.timedelta(days=0, minutes=10),
-                'time_token_is_generated': datetime.datetime.utcnow(),
-                'user': id
+                'exp': expire_date,
+                'iat': datetime.utcnow(),
+                'sub': id
             }
             return jwt.encode(
                 payload,
-                app.config.get(os.getenv('SECRET')),
+                os.getenv('SECRET'),
                 algorithm='HS256'
             )
         except Exception as e:
             return e
 
     @staticmethod
-    def verify_signature(auth_token):
+    def decode_auth_token(auth_token):
         """Decode the auth token and verify the signature."""
         try:
             payload = jwt.decode(auth_token, os.getenv('SECRET'))
-            return payload['user']
+            return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Signature Expired. Try log in again'
         except jwt.InvalidTokenError:
@@ -67,15 +67,13 @@ class Bucketlist(db.Model):
     date_modified = db.Column(db.DateTime, default=datetime.now,
                               onupdate=datetime.now)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    created_by = db.relationship('User',
-                                 backref=db.backref('user', lazy='dynamic'))
     items = db.relationship('Item',
                             backref=db.backref('bucketlists'),
                             cascade="all, delete-orphan")
 
     def __repr__(self):
         """Return printable representation of the object."""
-        return "Bucketlist: %d" % self.bucketlist_title
+        return "Bucketlist: {}}".format(self.bucketlist_title)
 
     def save(self):
         """Save a bucketlist."""
@@ -104,8 +102,14 @@ class Item(db.Model):
 
     def __repr__(self):
         """Return printable representation of the object."""
-        return "Item: %d" % self.item_name
+        return "Item: {}".format(self.item_name)
 
-    # def __init__(self, item_name):
-    #     """Initialize with item name."""
-    #     self.item_name = item_name
+    def save(self):
+        """Save an item."""
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        """Delete an item."""
+        db.session.delete(self)
+        db.session.commit()

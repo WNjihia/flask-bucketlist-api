@@ -1,5 +1,6 @@
 """base test file."""
 import unittest
+import json
 
 from bucketlist import create_app, db
 from bucketlist.models import User, Bucketlist, Item
@@ -16,8 +17,8 @@ class BaseTestCase(unittest.TestCase):
         self.app_context.push()
         db.create_all()
 
-        user = User(username="johndoe",
-                    email="johndoe@gmail.com",
+        user = User(username="lynn",
+                    email="lynn@gmail.com",
                     password="password")
         bucketlist = Bucketlist(bucketlist_title="Visit Paris", creator_id=1)
         item = Item(item_name="The Eiffel Tower",
@@ -27,11 +28,23 @@ class BaseTestCase(unittest.TestCase):
         db.session.add(user)
         db.session.add(bucketlist)
         db.session.add(item)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
 
-        # set header
-        self.auth_header = {'Authorization': user.generate_auth_token(user.id)}
-        self.token = user.generate_auth_token(user.id)
+    def set_header(self):
+        payload = dict(email='lynn@gmail.com',
+                       password='password'
+                       )
+        response = self.client.post('/api/v1/auth/login',
+                                    data=json.dumps(payload),
+                                    content_type="application/json")
+        res_message = json.loads(response.data.decode())
+        print(res_message)
+        self.token = res_message['auth_token']
+        return {'Authorization': 'Token ' + self.token
+                }
 
     def tearDown(self):
         """Tear down the test database."""

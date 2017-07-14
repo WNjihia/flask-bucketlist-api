@@ -1,3 +1,8 @@
+import json
+import jwt
+import os
+import re
+
 from flask import Blueprint, make_response, jsonify, request
 from flask.views import MethodView
 
@@ -12,6 +17,39 @@ class UserRegistration(MethodView):
     def post(self):
         # get the post data
         data_posted = request.get_json()
+        if (data_posted.get('email') == ''):
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide an email!'
+                        }
+            return make_response(jsonify(response)), 400
+        if (data_posted.get('username') == ''):
+            response = {
+                        'status': 'fail',
+                        'message': 'Please provide a username!'
+                        }
+            return make_response(jsonify(response)), 400
+        if (data_posted.get('password') == ''):
+            response = {
+                        'status': 'fail',
+                        'message': 'Please a valid password'
+                        }
+            return make_response(jsonify(response)), 400
+
+        if (len(data_posted.get('password')) < 8):
+            response = {
+                        'status': 'fail',
+                        'message': 'Password too short!'
+                        }
+            return make_response(jsonify(response)), 400
+
+        if not re.match(r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$',
+                        data_posted.get('email')):
+            response = {
+                        'status': 'fail',
+                        'message': 'Invalid email!'
+                        }
+            return make_response(jsonify(response)), 400
         # check if the user already exists
         user = User.query.filter_by(email=data_posted.get('email')).first()
         if not user:
@@ -26,7 +64,7 @@ class UserRegistration(MethodView):
                 db.session.commit()
                 response = {
                             'status': 'success',
-                            'message': 'You have been successfully registered'
+                            'message': 'You have been successfully registered.'
                             }
                 return make_response(jsonify(response)), 201
             except Exception as e:
@@ -49,7 +87,12 @@ class UserLogin(MethodView):
         data_posted = request.get_json()
         try:
             user = User.query.filter_by(email=data_posted.get('email')).first()
-            auth_token = user.generate_auth_token(user.id)
+            if not user:
+                response = {'status': 'fail',
+                            'message': 'Invalid username/password!'
+                            }
+                return make_response(jsonify(response)), 401
+            auth_token = user.encode_auth_token(user.id)
 
             if not auth_token:
                 response = {'status': 'fail',
@@ -58,11 +101,13 @@ class UserLogin(MethodView):
                 return make_response(jsonify(response)), 401
 
             response = {'status': 'success',
-                        'message': 'You have successfully logged in.'
+                        'message': 'You have successfully logged in.',
+                        'auth_token': auth_token.decode()
                         }
+
             return make_response(jsonify(response)), 200
         except Exception as e:
-            response = {'status': 'fail' + str(e),
+            response = {'status': str(e),
                         'message': 'Login failed! Please try again'
                         }
             return make_response(jsonify(response)), 500

@@ -1,158 +1,248 @@
 """test_bucketlistitems.py."""
 import json
 from tests.test_setup import BaseTestCase
-from bucketlist.models import Item
 
 
 class ItemsTestCase(BaseTestCase):
     """This class contains tests for items."""
 
-    def test_create_new_Item(self):
+    def test_create_new_item(self):
         """Test for successful creation of an item."""
-        payload = {'item_name': 'The Louvre',
+        payload = {'name': 'The Louvre',
                    'description': 'Largest museum in Paris'}
-        response = self.client.post("/api/v1/bucketlists/1/items",
+        response = self.client.post("/api/v1/bucketlists/1/items/",
                                     data=json.dumps(payload),
-                                    headers=self.auth_header,
+                                    headers=self.set_header(),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 201)
-        self.assertEqual("Item created successfully", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Item The Louvre has been added",
+                         res_message['message'])
+
+    def test_create_new_item_with_invalid_token(self):
+        """Test for creation of an item with an invalid token."""
+        payload = {'name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        response = self.client.post("/api/v1/bucketlists/1/items/",
+                                    data=json.dumps(payload),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
 
     def test_create_Item_with_invalid_name_format(self):
         """Test for creation of an item with an invalid name format."""
-        payload = {'item_name': '1234%$#@!^&',
+        payload = {'name': '[]**%',
                    'description': 'Largest museum in Paris'}
-        response = self.client.post("/api/v1/bucketlists/1/items",
+        response = self.client.post("/api/v1/bucketlists/1/items/",
                                     data=json.dumps(payload),
-                                    headers=self.auth_header,
+                                    headers=self.set_header(),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual("Invalid format", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Invalid name format", res_message['message'])
 
-    def test_create_Item_that_exists(self):
+    def test_create_item_that_exists(self):
         """Test for creation of an item that already exists."""
-        payload = {'item_name': 'The Eiffel Tower',
+        payload = {'name': 'The Eiffel Tower',
                    'description': 'Wrought iron lattice tower in France'}
-        response = self.client.post("/api/v1/bucketlists/1/items",
+        response = self.client.post("/api/v1/bucketlists/1/items/",
                                     data=json.dumps(payload),
-                                    headers=self.auth_header,
+                                    headers=self.set_header(),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 409)
-        self.assertIn("This item already exists", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Item already exists!", res_message['message'])
 
-    def test_create_Item_with_non_existent_bucketlist(self):
+    def test_create_item_with_non_existent_bucketlist(self):
         """Test creation of an item with non existent bucketlist."""
-        payload = {'item_name': 'The Louvre',
+        payload = {'name': 'The Louvre',
                    'description': 'Largest museum in Paris'}
-        response = self.client.post("/api/v1/bucketlists/15/items",
+        response = self.client.post("/api/v1/bucketlists/15/items/",
                                     data=json.dumps(payload),
-                                    headers=self.auth_header,
+                                    headers=self.set_header(),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 404)
-        self.assertEqual("Bucketlist cannot be found", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Bucketlist not found!", res_message['message'])
 
-    def test_get_all_BucketListItems(self):
+    def test_get_all_bucketlistitems(self):
         """Test retrieval of items successfully."""
-        response = self.client.get("/api/v1/bucketlists/1/items")
+        response = self.client.get("/api/v1/bucketlists/1/items/",
+                                   headers=self.set_header())
         self.assertEqual(response.status_code, 200)
-        self.assertIn("The Eiffel Tower", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertIn("The Eiffel Tower", res_message[0]['name'])
 
-    def test_get_Items_with_invalid_BucketList_Id(self):
+    def test_get_all_bucketlistitems_with_invalid_token(self):
+        """Test retrieval of items with an invalid token."""
+        response = self.client.get("/api/v1/bucketlists/1/items/")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertIn("Please provide a valid auth token!",
+                      res_message['message'])
+
+    def test_get_items_with_invalid_bucketList_id(self):
         """Test retrieval of items with invalid bucketlist ID."""
-        response = self.client.get("/api/v1/bucketlists/15/items",
-                                   headers=self.auth_header)
+        response = self.client.get("/api/v1/bucketlists/15/items/",
+                                   headers=self.set_header())
         self.assertEqual(response.status_code, 404)
-        self.assertEqual("Bucketlist cannot be found", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Bucketlist not found!", res_message['message'])
 
-    def test_get_Items_by_id(self):
+    def test_get_items_by_id(self):
         """Test retrieval of an item by ID."""
-        response = self.client.get("/api/v1/bucketlists/1/items/1",
-                                   headers=self.auth_header)
+        response = self.client.get("/api/v1/bucketlists/1/items/1/",
+                                   headers=self.set_header())
         self.assertEqual(response.status_code, 200)
 
-    def test_update_Item_by_id(self):
+    def test_update_item_by_id(self):
         """Test updating an item by ID."""
-        payload = {'item_name': 'The Eiffel Tower',
+        payload = {'name': 'Just a tower',
                    'description': 'Tallest building in France'}
-        response = self.client.put("/api/v1/bucketlists/1/items/1",
+        response = self.client.put("/api/v1/bucketlists/1/items/1/",
                                    data=json.dumps(payload),
-                                   headers=self.auth_header,
+                                   headers=self.set_header(),
                                    content_type="application/json")
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual("Item succesfully updated", str(response.data))
+        self.assertEqual(response.status_code, 201)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Just a tower", res_message['message']['name'])
 
-    def test_update_Items_with_invalid_BucketList_Id(self):
+    def test_update_item_with_invalid_token(self):
+        """Test updating an item with an invlid token."""
+        payload = {'name': 'Just a tower',
+                   'description': 'Tallest building in France'}
+        response = self.client.put("/api/v1/bucketlists/1/items/1/",
+                                   data=json.dumps(payload),
+                                   content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
+
+    def test_update_items_with_invalid_bucketList_id(self):
         """Test updating an item with invalid Bucketlist ID."""
-        payload = {'item_name': 'The Eiffel Tower',
+        payload = {'name': 'The Eiffel Tower',
                    'description': 'Tallest building in France'}
-        response = self.client.put("/api/v1/bucketlists/15/items/1",
+        response = self.client.put("/api/v1/bucketlists/15/items/1/",
                                    data=json.dumps(payload),
-                                   headers=self.auth_header,
+                                   headers=self.set_header(),
                                    content_type="application/json")
         self.assertEqual(response.status_code, 404)
-        self.assertEqual("Bucketlist cannot be found", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Bucketlist not found!", res_message['message'])
 
-    def test_update_Item_that_does_not_exist(self):
+    def test_update_item_that_does_not_exist(self):
         """Test updating an item that does not exist."""
-        payload = {'item_name': 'The Eiffel Tower',
+        payload = {'name': 'The Eiffel Tower',
                    'description': 'Tallest building in France'}
-        response = self.client.put("/api/v1/bucketlists/1/items/15",
+        response = self.client.put("/api/v1/bucketlists/1/items/15/",
                                    data=json.dumps(payload),
-                                   headers=self.auth_header,
+                                   headers=self.set_header(),
                                    content_type="application/json")
         self.assertEqual(response.status_code, 404)
-        self.assertEqual("Item cannot be found", str(response.data))
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Item not found!", res_message['message'])
 
-    def test_update_Item_with_same_data(self):
+    def test_update_item_with_the_same_data(self):
         """Test updating an item with the same data."""
-        payload = {'item_name': 'The Eiffel Tower',
+        payload = {'name': 'The Eiffel Tower',
                    'description': 'Wrought iron lattice tower in France'}
-        response = self.client.put("/api/v1/bucketlists/1/items/1",
+        response = self.client.put("/api/v1/bucketlists/1/items/1/",
                                    data=json.dumps(payload),
-                                   headers=self.auth_header,
+                                   headers=self.set_header(),
                                    content_type="application/json")
         self.assertEqual(response.status_code, 409)
+        res_message = json.loads(response.data.decode('utf8'))
         self.assertEqual("No updates detected",
-                         str(response.data))
+                         res_message['message'])
 
-    def test_delete_Item_by_id(self):
+    def test_delete_item_successfully(self):
         """Test deleting an item by ID."""
-        response = self.client.delete("/api/v1/bucketlists/1/items/1",
-                                      headers=self.auth_header)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual("Item succesfully deleted", str(response.data))
-
-    def test_delete_Item_that_does_not_exist(self):
-        """Test deleting an item that does not exist."""
-        response = self.client.delete("/api/v1/bucketlists/1/items/15",
-                                      headers=self.auth_header,)
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual("Item cannot be found", str(response.data))
-
-    def test_delete_Items_with_invalid_BucketList_Id(self):
-        """Test deleting an item with an invalid bucketlist ID."""
-        response = self.client.delete("/api/v1/bucketlists/5/items/1",
-                                      headers=self.auth_header,)
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual("Bucketlist cannot be found", str(response.data))
-
-    def test_change_Item_status(self):
-        """Test change of item status"""
-        payload = {'item_name': 'The Louvre',
+        payload = {'name': 'The Louvre',
                    'description': 'Largest museum in Paris'}
-        self.client.post("/api/v1/bucketlists/1/items",
+        self.client.post("/api/v1/bucketlists/1/items/",
                          data=json.dumps(payload),
-                         headers=self.auth_header,
+                         headers=self.set_header(),
                          content_type="application/json")
-        new_item = Item.query.filter_by(item_name="The Louvre")
-        self.assertTrue(new_item.is_completed, False)
-
-        payload = {'is_completed': True}
-        response = self.client.put("/api/v1/bucketlists/1/items/1",
-                                   data=json.dumps(payload),
-                                   headers=self.auth_header,
-                                   content_type="application/json")
+        response = self.client.delete("/api/v1/bucketlists/1/items/2/",
+                                      headers=self.set_header())
         self.assertEqual(response.status_code, 200)
-        self.assertEqual("Item succesfully updated", str(response.data))
-        new_item = Item.query.filter_by(item_name="The Louvre")
-        self.assertTrue(new_item.is_completed, True)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Item succesfully deleted", res_message['message'])
+
+    def test_delete_item_with_invalid_token(self):
+        """Test deleting an item with an invalid token."""
+        payload = {'name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        self.client.post("/api/v1/bucketlists/1/items/",
+                         data=json.dumps(payload),
+                         content_type="application/json")
+        response = self.client.delete("/api/v1/bucketlists/1/items/2/")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Please provide a valid auth token!",
+                         res_message['message'])
+
+    def test_delete_item_that_does_not_exist(self):
+        """Test deleting an item that does not exist."""
+        response = self.client.delete("/api/v1/bucketlists/1/items/15/",
+                                      headers=self.set_header(),)
+        self.assertEqual(response.status_code, 404)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Item not found!", res_message['message'])
+
+    def test_delete_items_with_invalid_bucketList_id(self):
+        """Test deleting an item with an invalid bucketlist ID."""
+        response = self.client.delete("/api/v1/bucketlists/5/items/1/",
+                                      headers=self.set_header(),)
+        self.assertEqual(response.status_code, 404)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual("Bucketlist not found!", res_message['message'])
+
+    def test_change_item_status(self):
+        """Test change of item status"""
+        payload = {'name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        self.client.post("/api/v1/bucketlists/1/items/",
+                         data=json.dumps(payload),
+                         headers=self.set_header(),
+                         content_type="application/json")
+        response = self.client.get("/api/v1/bucketlists/1/items/2/",
+                                   data=json.dumps(payload),
+                                   headers=self.set_header())
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertFalse(res_message['is_completed'], False)
+
+        payload = {'is_completed': 'true'}
+        response = self.client.patch("/api/v1/bucketlists/1/items/2/",
+                                     data=json.dumps(payload),
+                                     headers=self.set_header(),
+                                     content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual(res_message['message']['completion_status'], True)
+
+    def test_change_item_status_with_invalid_token(self):
+        """Test change of item status with an invalid token"""
+        payload = {'name': 'The Louvre',
+                   'description': 'Largest museum in Paris'}
+        self.client.post("/api/v1/bucketlists/1/items/",
+                         data=json.dumps(payload),
+                         headers=self.set_header(),
+                         content_type="application/json")
+        response = self.client.get("/api/v1/bucketlists/1/items/2/",
+                                   data=json.dumps(payload),
+                                   headers=self.set_header())
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertFalse(res_message['is_completed'], False)
+
+        payload = {'is_completed': 'true'}
+        response = self.client.patch("/api/v1/bucketlists/1/items/2/",
+                                     data=json.dumps(payload),
+                                     content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        res_message = json.loads(response.data.decode('utf8'))
+        self.assertEqual(res_message['message'],
+                         "Please provide a valid auth token!")
