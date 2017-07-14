@@ -2,6 +2,8 @@
 [![Build Status](https://travis-ci.org/WNjihia/flask-bucketlist-api.svg?branch=develop)](https://travis-ci.org/WNjihia/flask-bucketlist-api)
 [![Coverage Status](https://coveralls.io/repos/github/WNjihia/flask-bucketlist-api/badge.svg?branch=develop)](https://coveralls.io/github/WNjihia/flask-bucketlist-api?branch=develop)
 
+API documentation: http://docs.bucketlistwnjihia.apiary.io/
+
 ### BucketList API
 
 According to the Oxford Dictionary, a BucketList is a number of experiences or achievements that a person hopes to have or accomplish during their lifetime.
